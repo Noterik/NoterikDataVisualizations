@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<meta charset="utf-8">
+
+<body style="height: 100%">
+  <script src="../lib/d3.min.js"></script>
+  <script src="../lib/jquery-1.11.3.min.js"></script>
+  <script src="../jquery.wordcloud.js"></script>
+  <script src="js/chance.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      var wordcloud = $('#wordcloud').wordcloud();
+
+      //Selection of fonts, we'll pick a random one later
+      var fonts = [
+        'Helvetica',
+        'Arial',
+        'Courier'
+      ]
+
+      //Lets generate some words
+      var maxWords = 10;
+      var words = [];
+      for(var i = 0; i < maxWords; i++){
+        words[i] = chance.word();
+      }
+
+      //Lets "shoot" in the following amount of words, there might be duplicates as the amount of words might be lower then the amount we're going to shoot in.
+      var max = 20;
+      var i = 0;
+      var interval = setInterval(function(){
+        if(i < max){
+
+          var word = words[Math.floor(Math.random() * words.length)];
+          var font = fonts[Math.floor(Math.random() * fonts.length)];
+
+          console.info("Adding word:", word, "with font:", font);
+
+          wordcloud.wordcloud('addWord', {
+            text: word,
+            fontFamily: font
+          })
+          i++;
+        }else{
+
+          console.info("Lets reset the wordcloud!");
+
+          wordcloud.wordcloud('reset');
+          i = 0;
+        }
+      }, 2000);
+    })
+  </script>
+
+  <div id="wordcloud" style="width: 100%; height: 100%;">
+  </div>
+</body>
+</html>
