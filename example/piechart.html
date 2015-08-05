@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<meta charset="utf-8">
+
+<body style="height: 100%; margin: 0;">
+  <script src="../lib/d3.min.js"></script>
+  <script src="../lib/jquery-1.11.3.min.js"></script>
+  <script src="../jquery.ntkPieChart.js"></script>
+  <script src="js/chance.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      //Lets generate some data:
+
+      var maxLabels = 8,
+        minValue = 1,
+        maxValue = 5;
+
+      var generateDataStructure = function(){
+        var data = [];
+        for(var i = 0; i < maxLabels; i++){
+          var label = chance.word({length: 5});
+          var value = chance.integer({min: minValue, max: maxValue});
+          data.push({
+            'label': label,
+            'value': value
+          });
+        }
+
+        return data;
+      };
+
+      var setValues = function(data){
+        data.forEach(function(entry){
+          entry.value = chance.integer({min: minValue, max: maxValue});
+        });
+
+        return data;
+      }
+
+      var structure = generateDataStructure();
+      var data = setValues(structure);
+
+      var piechart = $('#piechart').ntkPieChart({
+        data: data
+      });
+
+      setInterval(function(){
+        piechart.ntkPieChart('update', setValues(structure));
+      }, 2000);
+    });
+  </script>
+
+  <div id="piechart" style="width: 500px; height: 500px;">
+  </div>
+</body>
+</html>
