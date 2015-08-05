@@ -1,11 +1,11 @@
 (function($) {
 
   $.fn.extend({
-    wordcloud: function(options, arg) {
+    ntkWordcloud: function(options, arg) {
       if (options && typeof(options) == 'object') {
-        options = $.extend({}, $.wordcloud.defaults, options);
+        options = $.extend({}, $.ntkWordcloud.defaults, options);
       } else if (!options) {
-        options = $.extend({}, $.wordcloud.defaults);
+        options = $.extend({}, $.ntkWordcloud.defaults);
       }
 
       // this creates a plugin for each element in
@@ -14,19 +14,19 @@
       // first element (once), return false after
       // creating the plugin to stop the each iteration
       this.each(function() {
-        $.wordcloud(this, options, arg);
+        $.ntkWordcloud(this, options, arg);
       });
       return this;
     }
   });
 
-  $.wordcloud = function(elem, options, arg) {
+  $.ntkWordcloud = function(elem, options, arg) {
 
     var publicFns = {
       addWord: function(word){
         var $elem = $(this);
 
-        var settings = $elem.data('wordcloud_settings');
+        var settings = $elem.data('ntk_wordcloud_settings');
         var words = settings.words;
 
         var alreadyExists = false;
@@ -48,7 +48,7 @@
       },
       reset: function(){
         $(this).html('');
-        var settings = $(this).data('wordcloud_settings');
+        var settings = $(this).data('ntk_wordcloud_settings');
         settings.words = [];
         init(this);
       }
@@ -56,7 +56,7 @@
 
     var startForce = function(elem) {
       var $elem = $(elem);
-      var settings = $elem.data('wordcloud_settings');
+      var settings = $elem.data('ntk_wordcloud_settings');
 
       var force = settings._force;
       var svg = settings._svg;
@@ -104,7 +104,7 @@
 
     var init = function(elem, options) {
       var $elem = $(elem);
-      var existingSettings = $elem.data('wordcloud_settings');
+      var existingSettings = $elem.data('ntk_wordcloud_settings');
       var settings = options ? options : existingSettings;
 
       //Width can be passed as arguments, otherwise just take full element space
@@ -141,7 +141,7 @@
         .attr("width", settings.width)
         .attr("height", settings.height);
 
-      $elem.data('wordcloud_settings', settings);
+      $elem.data('ntk_wordcloud_settings', settings);
 
       //Callback for animations
       settings._force.on('tick', function(e){
@@ -173,7 +173,7 @@
     }
   };
 
-  $.wordcloud.defaults = {
+  $.ntkWordcloud.defaults = {
     words: [],
     gravity: 0.4, //Decides how quick the words will go to the center of gravity
     wordDefaults: {
