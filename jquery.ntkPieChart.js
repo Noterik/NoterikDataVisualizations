@@ -15,6 +15,7 @@
 
   var PieChart = function(element, settings){
     console.log("new PieChart(", settings , ")");
+    var self = this;
     settings = jQuery.extend({}, this.defaults, settings);
 
     if (!settings.width)
@@ -47,39 +48,101 @@
     var path = svg.selectAll("path")
       .data(pie(settings.data));
 
+    var text = svg.selectAll("text")
+      .data(pie(settings.data));
+
+
     var render = function(){
       path.enter().append("path")
-      .attr("d", arc)
-      .style("fill", function(d, i){ return color(i); })
-      .each(function(d){
-        this._current = d;
-      })
+        .style("fill", function(d, i){ return color(i); })
+        .each(function(d){
+          this._current = d;
+        })
+
+      text.enter().append("text")
+        .text(function(d){
+          return d.data.label;
+        })
+        .attr("transform", function(d){
+          return "translate(" + arc.centroid(d) + ")";
+        })
+        .style("font-family", function(d){
+          if(d.fontFamily){
+            return d.fontFamily
+          }else{
+            return settings.fontFamily;
+          }
+        })
+        .style("fill", function(d){
+          if(d.fontColor){
+            return d.fontColor
+          }else{
+            return settings.fontColor;
+          }
+        })
+        .each(function(d){
+          this._current = d;
+        });
 
     }
 
     render();
+    animate();
 
     this.reset = function(){
-
     };
 
     this.update = function(data){
-      path = path.data(pie(settings.data));
+      var pieData = pie(settings.data);
+      path = path.data(pieData);
+      text = text.data(pieData);
       render();
       animate();
     };
 
     function animate(){
-      path.transition().duration(750).attrTween("d", arcTween);
+      path.transition().duration(500).attrTween("d", arcTween);
+      text.transition().duration(750).attrTween("transform", textTween);
+    }
+
+    function textTween(a){
+      var i = d3.interpolate(this._current, a);
+      this._current = i(0);
+      return function(t){
+        return "translate(" + arc.centroid(i(t)) + ")";
+      }
     }
 
     function arcTween(a) {
       console.log(this._current);
-      var i = d3.interpolate(this._current, a);
-      this._current = i(0);
-      return function(t) {
-        return arc(i(t));
+      if(!this._startAnimationDone){
+        this._startAnimationDone = true;
+        var start = {
+          startAngle: a.endAngle,
+          endAngle: a.endAngle
+        }
+        var i = d3.interpolate(start, a);
+        return function(t) {
+          return arc(i(t));
+        }
+      }else{
+        var i = d3.interpolate(this._current, a);
+        this._current = i(0);
+        return function(t) {
+          return arc(i(t));
+        };
+      }
+    }
+
+    function newPartTween(a){
+      var b = {
+        startAngle: 0,
+        endAngle: 0
       };
+      var i = d3.interpolate(b, a);
+      return function(t){
+        return arc(i(t));
+      }
     }
   };
   PieChart.prototype = Object.create({});
