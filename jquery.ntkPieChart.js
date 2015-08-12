@@ -2,13 +2,6 @@
 
   $.fn.extend({
     ntkPieChart: function(options, arg) {
-      if (options && typeof(options) == 'object') {
-        options = $.extend({}, $.ntkPieChart.defaults, options);
-      } else if (!options) {
-        options = $.extend({}, $.ntkPieChart.defaults);
-      }
-
-      // this creates a plugin for each element in
       // the selector or runs the function once per
       // selector.  To have it do so for just the
       // first element (once), return false after
@@ -20,115 +13,98 @@
     }
   });
 
-  $.ntkPieChart = function(elem, options, arg) {
+  var PieChart = function(element, settings){
+    console.log("new PieChart(", settings , ")");
+    settings = jQuery.extend({}, this.defaults, settings);
 
-    var publicFns = {
-      reset: function() {
-        $(this).html('');
-        var settings = $(this).data('ntk_piechart_settings');
-        settings.data = [];
-        init(this);
-      },
-      update: function(data) {
-        var settings = $(this).data('ntk_piechart_settings');
+    if (!settings.width)
+      settings.width = element.width()
 
-        function arcTween(a) {
-          var i = d3.interpolate(this._current, a);
-          this._current = i(0);
-          return function(t) {
-            return d3.svg.arc().outerRadius(settings.radius)(i(t));
-          };
-        }
+    if (!settings.height)
+      settings.height = element.height();
 
-        function textTween(a){
-          var i = d3.interpolate(this._current, a);
-          this._current = i(0);
-          return function(t){
-            return "translate(" + settings._arc.centroid(i(t)) + ")";
-          }
-        }
+    if (!settings.radius)
+      settings.radius = Math.min(settings.width, settings.height) / 2;
 
-        settings._svg.selectAll("path").data(settings._pie(data))
-          .transition().duration(750).attrTween("d", arcTween);
+    var pie = d3.layout.pie()
+      .sort(null)
+      .value(function(d) {
+        return d.value;
+      });
 
-        settings._svg.selectAll("text").data(settings._pie(data))
-          .transition().duration(750).attrTween("transform", textTween);
-      }
+    var color = d3.scale.category20();
+
+    var svg = d3.select(element[0]).append("svg")
+      .attr("width", settings.width)
+      .attr("height", settings.height)
+      .append("g")
+      .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")");
+
+    var arc = d3.svg.arc()
+      .outerRadius(settings.radius)
+      .innerRadius(0);
+
+    var path = svg.selectAll("path")
+      .data(pie(settings.data));
+
+    var render = function(){
+      path.enter().append("path")
+      .attr("d", arc)
+      .style("fill", function(d, i){ return color(i); })
+      .each(function(d){
+        this._current = d;
+      })
+
     }
 
+    render();
+
+    this.reset = function(){
+
+    };
+
+    this.update = function(data){
+      path = path.data(pie(settings.data));
+      render();
+      animate();
+    };
+
+    function animate(){
+      path.transition().duration(750).attrTween("d", arcTween);
+    }
+
+    function arcTween(a) {
+      console.log(this._current);
+      var i = d3.interpolate(this._current, a);
+      this._current = i(0);
+      return function(t) {
+        return arc(i(t));
+      };
+    }
+  };
+  PieChart.prototype = Object.create({});
+  PieChart.prototype.defaults = {
+    data: [],
+    fontFamily: "Verdana,sans-serif",
+    fontColor: "#FFFFFF",
+  }
+
+  $.ntkPieChart = function(elem, options, arg) {
+    var $elem = $(elem);
     var init = function(elem, options) {
-      var $elem = $(elem);
-      var existingSettings = $elem.data('ntk_piechart_settings');
-      var settings = options ? options : existingSettings;
-
       //Width can be passed as arguments, otherwise just take full element space
-      if (!settings.width)
-        settings.width = $elem.width()
-
-      if (!settings.height)
-        settings.height = $elem.height();
-
-      if (!settings.radius)
-        settings.radius = Math.min(settings.width, settings.height) / 2;
-
-      settings._arc = d3.svg.arc()
-        .outerRadius(settings.radius)
-        .innerRadius(0);
-
-      settings._svg = d3.select(elem).append("svg")
-        .attr("width", settings.width)
-        .attr("height", settings.height)
-        .append("g")
-        .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")")
-
-      settings._color = d3.scale.category20();
-
-      settings._pie = d3.layout.pie()
-        .sort(null)
-        .value(function(d) {
-          return d.value
-        });
-
-      var g = settings._svg.selectAll(".arc")
-        .data(settings._pie(settings.data))
-        .enter().append("g")
-        .attr("class", "arc");
-
-      g.append("path")
-        .attr("d", settings._arc)
-        .style("fill", function(d, i) {
-          if (d.data.color) {
-            return d.data.color;
-          } else {
-            return settings._color(i);
-          }
-        })
-        .each(function(d) { this._current = d; });
-
-      g.append("text")
-        .attr("transform", function(d) {
-          return "translate(" + settings._arc.centroid(d) + ")";
-        })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .text(function(d) {
-          return d.data.label;
-        })
-        .each(function(d){ return this._current = d});
-
-      $elem.data('ntk_piechart_settings', settings);
+      $elem.data('ntk_piechart', new PieChart($elem, options));
     }
 
     if (options && typeof(options) == 'string') {
-      publicFns[options].apply(elem, [arg]);
+      var pie = $elem.data('ntk_piechart');
+      if(typeof pie[options] === 'function'){
+        pie[options].apply(pie, [arg]);
+      }
       return;
     } else if (options && typeof(options) == 'object') {
       init(elem, options);
     }
-  };
-
-  $.ntkPieChart.defaults = {
-    data: []
   };
 
 })(jQuery);
