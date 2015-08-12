@@ -1,20 +1,20 @@
 (function($) {
 
   $.fn.extend({
-    ntkPieChart: function(options, arg) {
+    ntkBarChart: function(options, arg) {
       // the selector or runs the function once per
       // selector.  To have it do so for just the
       // first element (once), return false after
       // creating the plugin to stop the each iteration
       this.each(function() {
-        $.ntkPieChart(this, options, arg);
+        $.ntkBarChart(this, options, arg);
       });
       return this;
     }
   });
 
-  var PieChart = function(element, settings){
-    console.log("new PieChart(", settings , ")");
+  var BarChart = function(element, settings){
+    console.log("new BarChart(", settings , ")");
     var self = this;
     settings = jQuery.extend({}, this.defaults, settings);
 
@@ -24,87 +24,29 @@
     if (!settings.height)
       settings.height = element.height();
 
-    if (!settings.radius)
-      settings.radius = Math.min(settings.width, settings.height) / 2;
-
-    var pie = d3.layout.pie()
-      .sort(null)
-      .value(function(d) {
-        return d.value;
-      });
-
-    var color = d3.scale.category20();
-
     var svg = d3.select(element[0]).append("svg")
       .attr("width", settings.width)
       .attr("height", settings.height)
       .append("g")
       .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")");
 
-    var arc = d3.svg.arc()
-      .outerRadius(settings.radius)
-      .innerRadius(0);
-
-    var path = svg.selectAll("path")
-      .data(pie(settings.data));
-
-    var text = svg.selectAll("text")
-      .data(pie(settings.data));
-
-
     var render = function(){
-      path.exit().remove();
-      text.exit().remove();
-
-      path.enter().append("path")
-        .style("fill", function(d, i){ return color(i); })
-        .each(function(d){
-          this._current = d;
-        })
-
-
-
-      text.enter().append("text")
-        .text(function(d){
-          return d.data.label;
-        })
-        .attr("transform", function(d){
-          return "translate(" + arc.centroid(d) + ")";
-        })
-        .style("font-family", function(d){
-          if(d.fontFamily){
-            return d.fontFamily
-          }else{
-            return settings.fontFamily;
-          }
-        })
-        .style("fill", function(d){
-          if(d.fontColor){
-            return d.fontColor
-          }else{
-            return settings.fontColor;
-          }
-        })
-        .each(function(d){
-          this._current = d;
-        });
 
     }
 
     render();
     animate();
 
-    this.redraw = function(){
+    this.reset = function(){
+    };
+
+    this.update = function(data){
       var pieData = pie(settings.data);
       path = path.data(pieData);
       text = text.data(pieData);
       render();
       animate();
     };
-
-    this.setData = function(data){
-      settings.data = data;
-    }
 
     function animate(){
       path.transition().duration(500).attrTween("d", arcTween);
@@ -120,6 +62,7 @@
     }
 
     function arcTween(a) {
+      console.log(this._current);
       if(!this._startAnimationDone){
         this._startAnimationDone = true;
         var start = {

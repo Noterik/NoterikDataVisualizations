@@ -5,7 +5,7 @@
 <body style="height: 100%; margin: 0;">
   <script src="../lib/d3.min.js"></script>
   <script src="../lib/jquery-1.11.3.min.js"></script>
-  <script src="../jquery.ntkPieChart.js"></script>
+  <script src="../jquery.ntkBarChart.js"></script>
   <script src="js/chance.min.js"></script>
   <script>
     $(document).ready(function(){
@@ -14,7 +14,6 @@
       var maxLabels = 5
         minValue = 1,
         maxValue = 5;
-        maxTicks = 10;
 
       var data = [];
 
@@ -40,21 +39,14 @@
       var currentTick = 0;
 
       setInterval(function(){
-        if(currentTick < maxTicks){
-          if(currentTick < maxLabels){
-            addValue(data);
-          }else{
-            changeValues(data);
-          }
-          currentTick++;
-          changeValues(data);
-          piechart.ntkPieChart('redraw');
+        if(currentTick < maxLabels){
+          addValue(data);
         }else{
-          data = [];
-          piechart.ntkPieChart('setData', data);
-          currentTick = 0;
-          piechart.ntkPieChart('redraw');
+          changeValues(data);
         }
+        currentTick++;
+        changeValues(data);
+        piechart.ntkPieChart('update', data);
       }, 2000);
 
     });
