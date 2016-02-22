@@ -19,7 +19,7 @@ All plugins use jQueryUI like initialization:
 $("#wordcloud").ntkWordcloud({setting: 'settingValue'})
 ```
 
-Examples can be found in the /examples folder and should run without a webserver. 
+Examples can be found in the /examples folder and can be run without a webserver. 
 
 ##Wordcloud (jQuery.ntkWordcloud.js)
 
