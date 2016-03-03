@@ -14,7 +14,6 @@
   });
 
   var PieChart = function(element, settings){
-    console.log("new PieChart(", settings , ")");
     var self = this;
     settings = jQuery.extend({}, this.defaults, settings);
 
@@ -57,10 +56,16 @@
       text.exit().remove();
 
       path.enter().append("path")
-        .style("fill", function(d, i){ return color(i); })
+        .style("fill", function(d, i){
+          console.log(d);
+          if(d.data.color){
+            return d.data.color;
+          }
+          return color(i);
+        })
         .each(function(d){
           this._current = d;
-        })
+        });
 
 
 
@@ -73,14 +78,14 @@
         })
         .style("font-family", function(d){
           if(d.fontFamily){
-            return d.fontFamily
+            return d.fontFamily;
           }else{
             return settings.fontFamily;
           }
         })
         .style("fill", function(d){
           if(d.fontColor){
-            return d.fontColor
+            return d.fontColor;
           }else{
             return settings.fontColor;
           }

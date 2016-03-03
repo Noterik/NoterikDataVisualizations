@@ -21,7 +21,8 @@
       var addValue = function(values){
         values.push({
           label: chance.word(),
-          value: chance.integer({min: minValue, max: maxValue})
+          value: chance.integer({min: minValue, max: maxValue}),
+          color: chance.color({format: 'hex'})
         });
       };
 

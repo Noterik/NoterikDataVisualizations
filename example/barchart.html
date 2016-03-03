@@ -11,48 +11,29 @@
     $(document).ready(function(){
       //Lets generate some data:
 
-      var maxLabels = 5
-        minValue = 1,
-        maxValue = 5;
+      var maxLabels = 10,
+      minValue = 1,
+      maxValue = 20;
 
       var data = [];
-
-      var addValue = function(values){
-        values.push({
+      for(var i = 0; i < maxLabels; i++){
+        var entry = {
           label: chance.word(),
           value: chance.integer({min: minValue, max: maxValue})
-        });
-      };
-
-      var changeValues = function(values){
-        values.forEach(function(val){
-          val.value = chance.integer({min: minValue, max: maxValue});
-        })
+        };
+        data.push(entry);
       }
 
-      addValue(data);
+      console.log(data);
 
-      var piechart = $('#piechart').ntkPieChart({
+      var barchart = $('#barchart').ntkBarChart({
         data: data
       });
-
-      var currentTick = 0;
-
-      setInterval(function(){
-        if(currentTick < maxLabels){
-          addValue(data);
-        }else{
-          changeValues(data);
-        }
-        currentTick++;
-        changeValues(data);
-        piechart.ntkPieChart('update', data);
-      }, 2000);
 
     });
   </script>
 
-  <div id="piechart" style="width: 500px; height: 500px;">
+  <div id="barchart" style="width: 800px; height: 800px;">
   </div>
 </body>
 </html>

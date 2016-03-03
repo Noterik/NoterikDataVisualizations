@@ -1,7 +1,15 @@
+/*
+* jquery.ntkWordcloud.js
+*
+* Renders a wordcloud, words can be added dynamically by using the "addWord" call.
+* Wordcloud can be initialized by "jQuery UI-like" style like: $("<css selector>").ntkWordcloud({setting: "settingValue"})
+* For a detailed list of available settings please check README
+*/
 (function($) {
 
   $.fn.extend({
     ntkWordcloud: function(options, arg) {
+      //Merge the passed arguments with the default arguments defined at the bottom of the page.
       if (options && typeof(options) == 'object') {
         options = $.extend({}, $.ntkWordcloud.defaults, options);
       } else if (!options) {
@@ -22,6 +30,7 @@
 
   $.ntkWordcloud = function(elem, options, arg) {
 
+    //The functions that are re
     var publicFns = {
       addWord: function(word){
         var $elem = $(this);
