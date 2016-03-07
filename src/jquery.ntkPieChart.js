@@ -17,14 +17,17 @@
     var self = this;
     settings = jQuery.extend({}, this.defaults, settings);
 
-    if (!settings.width)
-      settings.width = element.width()
+    if (!settings.width){
+      settings.width = element.width();
+    }
 
-    if (!settings.height)
+    if (!settings.height){
       settings.height = element.height();
+    }
 
-    if (!settings.radius)
+    if (!settings.radius){
       settings.radius = Math.min(settings.width, settings.height) / 2;
+    }
 
     var pie = d3.layout.pie()
       .sort(null)
@@ -57,7 +60,6 @@
 
       path.enter().append("path")
         .style("fill", function(d, i){
-          console.log(d);
           if(d.data.color){
             return d.data.color;
           }
@@ -94,7 +96,7 @@
           this._current = d;
         });
 
-    }
+    };
 
     render();
     animate();
@@ -109,7 +111,7 @@
 
     this.setData = function(data){
       settings.data = data;
-    }
+    };
 
     function animate(){
       path.transition().duration(500).attrTween("d", arcTween);
@@ -121,22 +123,23 @@
       this._current = i(0);
       return function(t){
         return "translate(" + arc.centroid(i(t)) + ")";
-      }
+      };
     }
 
     function arcTween(a) {
+      var i;
       if(!this._startAnimationDone){
         this._startAnimationDone = true;
         var start = {
           startAngle: a.endAngle,
           endAngle: a.endAngle
-        }
-        var i = d3.interpolate(start, a);
+        };
+        i = d3.interpolate(start, a);
         return function(t) {
           return arc(i(t));
-        }
+        };
       }else{
-        var i = d3.interpolate(this._current, a);
+        i = d3.interpolate(this._current, a);
         this._current = i(0);
         return function(t) {
           return arc(i(t));
@@ -152,7 +155,7 @@
       var i = d3.interpolate(b, a);
       return function(t){
         return arc(i(t));
-      }
+      };
     }
   };
   PieChart.prototype = Object.create({});
@@ -160,22 +163,22 @@
     data: [],
     fontFamily: "Verdana,sans-serif",
     fontColor: "#FFFFFF",
-  }
+  };
 
   $.ntkPieChart = function(elem, options, arg) {
     var $elem = $(elem);
     var init = function(elem, options) {
       //Width can be passed as arguments, otherwise just take full element space
       $elem.data('ntk_piechart', new PieChart($elem, options));
-    }
+    };
 
-    if (options && typeof(options) == 'string') {
+    if (options && typeof(options) === 'string') {
       var pie = $elem.data('ntk_piechart');
       if(typeof pie[options] === 'function'){
         pie[options].apply(pie, [arg]);
       }
       return;
-    } else if (options && typeof(options) == 'object') {
+    } else if (options && typeof(options) === 'object') {
       init(elem, options);
     }
   };

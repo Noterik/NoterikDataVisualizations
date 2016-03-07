@@ -10,7 +10,7 @@
   $.fn.extend({
     ntkWordcloud: function(options, arg) {
       //Merge the passed arguments with the default arguments defined at the bottom of the page.
-      if (options && typeof(options) == 'object') {
+      if (options && typeof(options) === 'object') {
         options = $.extend({}, $.ntkWordcloud.defaults, options);
       } else if (!options) {
         options = $.extend({}, $.ntkWordcloud.defaults);
@@ -40,7 +40,7 @@
 
         var alreadyExists = false;
         var existingWords = words.forEach(function(w){
-          if(w.text == word.text){
+          if(w.text === word.text){
             alreadyExists = true;
 
             if(w.wantedFontSize){
@@ -61,7 +61,7 @@
         settings.words = [];
         init(this);
       }
-    }
+    };
 
     var startForce = function(elem) {
       var $elem = $(elem);
@@ -74,21 +74,21 @@
       force.start();
       svg.selectAll("text").remove();
 
-      var elem = svg.selectAll("g myCircleText")
-        .data(words.slice(1))
+      elem = svg.selectAll("g myCircleText")
+        .data(words.slice(1));
 
       var color = d3.scale.category20();
 
       var elemEnter = elem.enter()
         .append("text")
         .text(function(d) {
-          return d.text
+          return d.text;
         })
         .style("font-family", function(d){
           return d.fontFamily;
         })
         .attr("dx", function(d) {
-          return this.getComputedTextLength() / 2
+          return this.getComputedTextLength() / 2;
         })
         .attr("fill", function(d, i) {
           if(d.color === "random"){
@@ -107,9 +107,9 @@
         };
         d.y2 = function() {
           return d.y + d.textHeight;
-        }
+        };
       });
-    }
+    };
 
     var init = function(elem, options) {
       var $elem = $(elem);
@@ -117,17 +117,19 @@
       var settings = options ? options : existingSettings;
 
       //Width can be passed as arguments, otherwise just take full element space
-      if(!settings.width)
-        settings.width = $elem.width()
+      if(!settings.width){
+        settings.width = $elem.width();
+      }
 
-      if(!settings.height)
+      if(!settings.height){
         settings.height = $elem.height();
+      }
 
       //Create root element for force layout
       var root = {
         radius: 0,
         fixed: true
-      }
+      };
 
       //Add required parameters that might be missing to the words
       settings.words = settings.words.map(function(word){
@@ -172,12 +174,12 @@
       });
 
       startForce(elem);
-    }
+    };
 
-    if (options && typeof(options) == 'string') {
+    if (options && typeof(options) === 'string') {
       publicFns[options].apply(elem, [arg]);
       return;
-    } else if (options && typeof(options) == 'object') {
+    } else if (options && typeof(options) === 'object') {
       init(elem, options);
     }
   };

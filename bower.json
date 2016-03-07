@@ -1,0 +1,30 @@
+{
+  "name": "NoterikDataVisualizations",
+  "homepage": "https://github.com/Noterik/NoterikDataVisualizations",
+  "authors": [
+    "DavidAmmeraal <david.ammeraal@gmail.com>"
+  ],
+  "description": "Data visualizations for use inside qandr",
+  "main": "index.html",
+  "moduleType": [],
+  "keywords": [
+    "noterik",
+    "qandr",
+    "d3",
+    "data",
+    "visualizations"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.1",
+    "d3": "^3.5.16"
+  }
+}
