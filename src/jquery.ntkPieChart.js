@@ -38,8 +38,8 @@
     var color = d3.scale.category20();
 
     var svg = d3.select(element[0]).append("svg")
-      .attr("width", settings.width)
-      .attr("height", settings.height)
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", "0 0 " + settings.width + " " + settings.height)
       .append("g")
       .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")");
 
