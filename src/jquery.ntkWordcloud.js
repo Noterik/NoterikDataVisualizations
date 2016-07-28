@@ -149,8 +149,8 @@
         .size([settings.width, settings.height]);
 
       settings._svg = d3.select(elem).append("svg")
-        .attr("width", settings.width)
-        .attr("height", settings.height);
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 " + settings.width + " " + settings.height);
 
       $elem.data('ntk_wordcloud_settings', settings);
 
