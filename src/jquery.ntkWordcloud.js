@@ -30,7 +30,7 @@
 
   $.ntkWordcloud = function(elem, options, arg) {
 
-    //The functions that are re
+    //The functions that are public
     var publicFns = {
       addWord: function(word){
         var $elem = $(this);
