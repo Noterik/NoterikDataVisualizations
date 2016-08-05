@@ -25,10 +25,24 @@ In NoterikDataVisualization root directory.
 
 ##Usage
 
-You can use them by adding them to your webpage like:
+For devel environment you can use:
+
+```
+//Each visualization type separately
+<script src="src/jquery.ntkPieChart.js">
+```
+
+or
+
+```
+//Concatenated non-mimimized/uglified file containing all plugins
+<script src="src/noterik-data-visualizations-<VERSION>.concat.js">
+```
+
+For production environments use:
 
 ```html
-<script src="noterik-data-visualizations-<VERSION>.min.js">
+<script src="dist/noterik-data-visualizations-<VERSION>.min.js">
 ```
 
 All plugins use jQueryUI like initialization:
