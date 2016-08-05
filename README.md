@@ -42,7 +42,11 @@ Examples can be found in the /examples folder and can be run without a webserver
 ##Wordcloud
 
 Renders words in a cloud. When a new word is added, it "shoots" it into the existing cloud. If a word is added that
-already exists, the size of the existing word will be increased. Example can be found in /examples/wordcloud.html.
+already exists, the size of the existing word will be increased. Example code can be found in /examples/wordcloud.html,
+
+DEMO:
+
+https://raw.githubusercontent.com/Noterik/NoterikDataVisualizations/master/example/wordcloud.html
 
 A wordcloud can be initialized like this:
 
@@ -97,3 +101,5 @@ $("#wordcloud").ntkWordcloud('addWord', {
   color: '#123456'
 });
 ```
+
+##Waterball
