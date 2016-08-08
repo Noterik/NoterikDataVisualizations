@@ -3,6 +3,14 @@ Data Visualization plugins for jQuery using d3.js, contains several jQuery plugi
 
 ##Dependencies
 
+###Building
+
+-NPM
+
+-Grunt
+
+###Runtime
+
 -jQuery
 
 -d3
