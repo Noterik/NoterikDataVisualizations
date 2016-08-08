@@ -61,6 +61,74 @@ $("#wordcloud").ntkWordcloud({setting: 'settingValue'})
 
 Examples can be found in the /examples folder and can be run without a webserver.
 
+##Piechart
+
+Renders part values in a piechart. The amount of space a slice takes represents the part takes in the sum of all parts. Takes an array of data like:
+
+```json
+[
+  {
+    color: "#043ae2",
+    label: "fimumlu",
+    value: 3
+  },
+  {
+    color: "#e51f43",
+    label: "biak",
+    value: 1
+  }
+]
+```
+
+The array of data can be set once using the "setData" call, and after that any changes to the array can be reflected by the piechart by using the "redraw" call. 
+
+Example code can be found in /examples/piechart.html
+
+DEMO:
+
+https://rawgit.com/Noterik/NoterikDataVisualizations/master/example/piechart.html
+
+###Initialization
+
+A piechart can be initialized like this:
+
+```javascript
+$('#piechart').ntkPiechart({
+  data: data
+});
+```
+
+Settings can be passed when initializing the piechart, example:
+
+```javascript
+$('#piechart').ntkPiechart({
+  data: data,
+  fontFamility: 'Verdana,sans-serif'
+});
+```
+
+###Updating
+
+Data should be changed directly in the array that was used to initialize the chart. The chart maintains a direct coupling to the array and any changes to the array can be reflected by doing a redraw call like this:
+
+```javascript
+$('#piechart').ntkPiechart('redraw')
+```
+
+If you want to change the dataset with a new one, you can use the 'setData' call like this
+
+```javascript
+$('#piechart').ntkPiechart('setData', data);
+```
+
+###Piechart settings
+
+Setting    |  Type | Explanation
+-----------|-------|-------------
+data   | Array | The data you want to render, look at chapter summary above.
+fontFamily  | String | The font family to display the labels with.
+fontColor  | Color HEX | The color of the labels. 
+
 ##Wordcloud
 
 Renders words in a cloud. When a new word is added, it "shoots" it into the existing cloud. If a word is added that
@@ -81,7 +149,7 @@ $('#wordcloud').ntkWordcloud();
 All the settings can be passed when initializing the wordcloud, example:
 
 ```javascript
-$("#wordcloud").ntkWordcloud({
+$('#wordcloud').ntkWordcloud({
   gravity: 0.5
 });
 ```
