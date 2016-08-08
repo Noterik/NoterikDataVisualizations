@@ -100,7 +100,6 @@
     animate();
 
     this.redraw = function(){
-      console.log("REDRAW");
       var pieData = pie(settings.data);
       path = path.data(pieData);
       text = text.data(pieData);
@@ -109,7 +108,6 @@
     };
 
     this.setData = function(data){
-      console.log("SET DATA " , data);
       settings.data = data;
     };
 
