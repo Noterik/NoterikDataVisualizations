@@ -53,7 +53,6 @@
     var text = svg.selectAll("text")
       .data(pie(settings.data));
 
-
     var render = function(){
       path.exit().remove();
       text.exit().remove();
@@ -68,7 +67,6 @@
         .each(function(d){
           this._current = d;
         });
-
 
 
       text.enter().append("text")
@@ -102,6 +100,7 @@
     animate();
 
     this.redraw = function(){
+      console.log("REDRAW");
       var pieData = pie(settings.data);
       path = path.data(pieData);
       text = text.data(pieData);
@@ -110,11 +109,15 @@
     };
 
     this.setData = function(data){
+      console.log("SET DATA " , data);
       settings.data = data;
     };
 
     function animate(){
       path.transition().duration(500).attrTween("d", arcTween);
+      text.transition().text(function(d){
+        return d.data.label;
+      });
       text.transition().duration(750).attrTween("transform", textTween);
     }
 

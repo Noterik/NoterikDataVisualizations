@@ -28,6 +28,7 @@
 
       var changeValues = function(values){
         values.forEach(function(val){
+          val.label = chance.word();
           val.value = chance.integer({min: minValue, max: maxValue});
         })
       }
