@@ -1,4 +1,4 @@
-/*! noterik-data-visualizations - v1.1 - 2016-08-05 */(function($) {
+/*! noterik-data-visualizations - v1.1.1 - 2016-08-08 */(function($) {
 
   $.fn.extend({
     ntkBarChart: function(options, arg) {
@@ -177,7 +177,6 @@
     var text = svg.selectAll("text")
       .data(pie(settings.data));
 
-
     var render = function(){
       path.exit().remove();
       text.exit().remove();
@@ -192,7 +191,6 @@
         .each(function(d){
           this._current = d;
         });
-
 
 
       text.enter().append("text")
@@ -239,6 +237,9 @@
 
     function animate(){
       path.transition().duration(500).attrTween("d", arcTween);
+      text.transition().text(function(d){
+        return d.data.label;
+      });
       text.transition().duration(750).attrTween("transform", textTween);
     }
 
