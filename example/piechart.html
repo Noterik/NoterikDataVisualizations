@@ -30,6 +30,7 @@
         values.forEach(function(val){
           val.label = chance.word();
           val.value = chance.integer({min: minValue, max: maxValue});
+          val.color = chance.color({format: 'hex'});
         })
       }
 

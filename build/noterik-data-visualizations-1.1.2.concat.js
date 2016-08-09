@@ -1,4 +1,4 @@
-/*! noterik-data-visualizations - v1.1.1 - 2016-08-08 */(function($) {
+/*! noterik-data-visualizations - v1.1.2 - 2016-08-09 */(function($) {
 
   $.fn.extend({
     ntkBarChart: function(options, arg) {
@@ -236,7 +236,12 @@
     };
 
     function animate(){
-      path.transition().duration(500).attrTween("d", arcTween);
+      path.transition().duration(500).attrTween("d", arcTween).style("fill", function(d, i){
+        if(d.data.color){
+          return d.data.color;
+        }
+        return color(i);
+      });
       text.transition().text(function(d){
         return d.data.label;
       });

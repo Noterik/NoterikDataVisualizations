@@ -112,7 +112,12 @@
     };
 
     function animate(){
-      path.transition().duration(500).attrTween("d", arcTween);
+      path.transition().duration(500).attrTween("d", arcTween).style("fill", function(d, i){
+        if(d.data.color){
+          return d.data.color;
+        }
+        return color(i);
+      });
       text.transition().text(function(d){
         return d.data.label;
       });
