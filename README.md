@@ -289,7 +289,10 @@ $('#logo').ntkLogo({
 The text in the logo can be updated like this:
 
 ```javascript
-$('#logo').ntkLogo('setText', 'Lorum Ipsum');
+$('#logo').ntkLogo('setText', {
+  'text': 'Lorum Ipsum',
+  'animation': 'rotate'
+});
 ```
 
 ###Logo settings
@@ -299,3 +302,6 @@ Setting    |  Type | Explanation
 animation  | String, one of ['rotation'] | The animation with which the logo is displayed.
 animationLength | Integer (time in ms) | How long the animation should take.
 animationInterval | Integer (time in ms) | The interval between a iteration of the animation.
+textColor | String (CSS Color) | Color of text (default: #FFFFFF).
+fontFamily | String (CSS Font Family) | Font Family of text (default: 'Verdana, Arial')
+fontSize: | Integer (font size in pixels) | Font size of text relative to the size of the viewport (viewport = 500 x 500, default fontSize: 40)

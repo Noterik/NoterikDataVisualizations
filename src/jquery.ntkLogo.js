@@ -27,39 +27,44 @@
       var $elem = jQuery(elem);
 
       options = Object.assign($.ntkLogo.defaults, options);
-      var animationInterval = null;
+
+      var idleAnimation = null;
+      var idleAnimationIntervalObj = null;
+      var currentAnimation = null;
       var left = null;
       var right = null;
 
       var animations = {
-        rotate: function(){
-          return setInterval(function(){
-            left.transition()
-              .duration(options.animationLength)
-              .attrTween("d", arcTween(Math.PI));
+        rotate: function(duration){
+          duration = duration || options.animationLength;
 
-            right.transition()
-              .duration(options.animationLength)
-              .attrTween("d", arcTween(Math.PI));
-          }, options.animationInterval);
+          var deferred = jQuery.Deferred();
+          setTimeout(function(){
+            deferred.resolve();
+          }, duration);
+
+          left.transition()
+            .duration(duration)
+            .attrTween("d", arcTween(Math.PI));
+
+          right.transition()
+            .duration(duration)
+            .attrTween("d", arcTween(Math.PI));
+
+          return deferred;
         }
       };
 
-      var width = $elem.width();
-      var height = $elem.height();
       var settings = {
-        width: width,
-        height: height,
-        outerRadius : width > height ? height / 2 : width / 2,
+        width: 500,
+        height: 500,
+        outerRadius : 250,
         outerColor: 'rgb(48, 142, 209)',
         innerColor: 'rgb(134, 205, 77)',
         leftStartAngle: 0,
         leftEndAngle: Math.PI,
         rightStartAngle: Math.PI,
-        rightEndAngle: Math.PI * 2,
-        textColor: '#FFFFFF',
-        fontFamily: 'Verdana, Arial',
-        fontSize: '72'
+        rightEndAngle: Math.PI * 2
       };
 
       var svg = d3.select($elem[0]).append("svg")
@@ -104,10 +109,10 @@
           text: "1"
         })
         .style("text-anchor", "middle")
-        .style("fill", settings.textColor)
-        .style("font-family", settings.fontFamily)
-        .style("font-size", settings.fontSize)
-        .attr("transform", "translate(0, " + (settings.fontSize / 3) + ")")
+        .style("fill", options.textColor)
+        .style("font-family",options.fontFamily)
+        .style("font-size", options.fontSize)
+        .attr("transform", "translate(0, " + (options.fontSize / 3 ) + ")")
         .text(function(d){
           return d.text;
         });
@@ -115,6 +120,7 @@
 
       function arcTween(newAngle){
         return function(d){
+
           var startInterpolate = d3.interpolate(d.startAngle, d.startAngle + newAngle);
           var endInterpolate = d3.interpolate(d.endAngle, d.endAngle + newAngle);
           return function(t){
@@ -126,26 +132,50 @@
       }
 
       if(options.animation){
+
         if(animations[options.animation]){
+          idleAnimation = animations[options.animation];
+          startIdleAnimation();
+        }
+      }
 
-          if(animationInterval){
-            clearInterval(animationInterval);
-          }
+      function startIdleAnimation(){
+        stopIdleAnimation();
+        idleAnimationIntervalObj = setInterval(function(){
+          idleAnimation();
+        }, options.animationInterval);
+      }
 
-          animationInterval = animations[options.animation]();
+      function stopIdleAnimation(){
+        if(idleAnimationIntervalObj){
+          clearInterval(idleAnimationIntervalObj);
+        }
+      }
+
+      function animate(animation, length){
+        length = length || options.animationLength;
+
+        if(!currentAnimation){
+          currentAnimation = animation(length);
+          currentAnimation.then(function(){
+            currentAnimation = null;
+          });
         }
       }
 
       return {
-        setText: function(newText){
-
-          text.datum({text: newText});
+        setText: function(valueObj){
+          text.datum({text: valueObj.text});
 
           text.transition()
             .duration(250)
             .text(function(d){
               return d.text;
             });
+
+          if(valueObj.animation && animations[valueObj.animation]){
+            animate(animations[valueObj.animation]);
+          }
         }
       };
     }
@@ -179,8 +209,10 @@
     };
 
     $.ntkLogo.defaults = {
-      animation: 'rotate',
       animationLength: 750,
-      animationInterval: 1000
+      animationInterval: 1000,
+      textColor: '#FFFFFF',
+      fontFamily: 'Verdana, Arial',
+      fontSize: 40
     };
 })(jQuery, d3, window);

@@ -13,10 +13,13 @@
       $('.visualization').ntkLogo();
 
       var i = 0;
-      setInterval(function(){
+      var interval = setInterval(function(){
         i++;
-        $('.visualization').ntkLogo('setText', i);
-      }, 1000);
+        $('.visualization').ntkLogo('setText', {text: i, animation: 'rotate'});
+        if(i > 200){
+          clearInterval(interval)
+        }
+      }, 20);
 
     });
   </script>
