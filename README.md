@@ -80,7 +80,7 @@ Renders part values in a piechart. The amount of space a slice takes represents 
 ]
 ```
 
-The array of data can be set once using the "setData" call, and after that any changes to the array can be reflected by the piechart by using the "redraw" call. 
+The array of data can be set once using the "setData" call, and after that any changes to the array can be reflected by the piechart by using the "redraw" call.
 
 Example code can be found in /examples/piechart.html
 
@@ -127,7 +127,7 @@ Setting    |  Type | Explanation
 -----------|-------|-------------
 data   | Array | The data you want to render, look at chapter summary above.
 fontFamily  | String | The font family to display the labels with.
-fontColor  | Color HEX | The color of the labels. 
+fontColor  | Color HEX | The color of the labels.
 
 ##Wordcloud
 
@@ -255,3 +255,47 @@ valueCountUp | Boolean | If true, the displayed value counts up from 0 to it's f
 displayPercent | Boolean | If true, a % symbol is displayed after the value.
 textColor | Color HEX | The color of the value text when the wave does not overlap it.
 waveTextColor | Color HEX | The color of the value text when the wave overlaps it.
+
+##Logo
+
+Displays the Noterik logo and allows a text to be rendered in the center.
+For supports one animation called: "rotate" which rotates the two arcs on the
+outside of logo around the center.
+
+Example code can be found in /examples/logo.html
+
+DEMO:
+
+https://rawgit.com/Noterik/NoterikDataVisualizations/master/example/logo.html
+
+###Initialization
+
+The logo can be initialized like this:
+
+```javascript
+$('#logo').ntkLogo();
+```
+
+All these settings can be passed when initializing the logo, example:
+
+```javascript
+$('#logo').ntkLogo({
+  animation: 'rotate'
+});
+```
+
+###Updating
+
+The text in the logo can be updated like this:
+
+```javascript
+$('#logo').ntkLogo('setText', 'Lorum Ipsum');
+```
+
+###Logo settings
+
+Setting    |  Type | Explanation
+-----------|-------|-------------
+animation  | String, one of ['rotation'] | The animation with which the logo is displayed.
+animationLength | Integer (time in ms) | How long the animation should take.
+animationInterval | Integer (time in ms) | The interval between a iteration of the animation.
