@@ -87,6 +87,7 @@
         .style("font-family", function(d){
           return d.fontFamily;
         })
+        .style("text-anchor", "middle")
         .attr("dx", function(d) {
           return this.getComputedTextLength() / 2;
         })
