@@ -164,6 +164,16 @@ $('#wordcloud').ntkWordcloud('addWord', {
 });
 ```
 
+You can also add several words at once like this:
+
+```javascript
+$('#wordcloud').ntkWordcloud('addWord', [{
+  text: "Lorum"
+},{
+  text: "Ipsum"
+}]);
+```
+
 ###Wordcloud generic settings
 Setting    |  Type | Explanation
 -----------|-------|-------------

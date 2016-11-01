@@ -1,4 +1,4 @@
-/*! noterik-data-visualizations - v1.2.2 - 2016-11-01 */(function($) {
+/*! noterik-data-visualizations - v1.2.3 - 2016-11-01 */(function($) {
 
   $.fn.extend({
     ntkBarChart: function(options, arg) {

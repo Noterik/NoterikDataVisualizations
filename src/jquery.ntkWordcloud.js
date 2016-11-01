@@ -32,27 +32,14 @@
 
     //The functions that are public
     var publicFns = {
-      addWord: function(word){
-        var $elem = $(this);
-
-        var settings = $elem.data('ntk_wordcloud_settings');
-        var words = settings.words;
-
-        var alreadyExists = false;
-        var existingWords = words.forEach(function(w){
-          if(w.text === word.text){
-            alreadyExists = true;
-
-            if(w.wantedFontSize){
-              w.wantedFontSize += w.fontSizeIncrease;
-            }else{
-              w.wantedFontSize = w.fontSize + w.fontSizeIncrease;
-            }
-          }
+      addWords: function(words){
+        words.forEach(function(word){
+          add(word);
         });
-        if(!alreadyExists){
-          words.push($.extend({}, settings.wordDefaults, word));
-        }
+        startForce(elem);
+      },
+      addWord: function(word){
+        add(word);
         startForce(elem);
       },
       reset: function(){
@@ -62,6 +49,27 @@
         init(this);
       }
     };
+
+    function add(word){
+      var $elem = $(elem);
+
+      var settings = $elem.data('ntk_wordcloud_settings');
+      var words = settings.words;
+
+      var existing = words.find(function(w){
+        return w.text === word.text;
+      });
+
+      if(existing){
+        if(existing.wantedFontSize){
+          existing.wantedFontSize += existing.fontSizeIncrease;
+        }else{
+          existing.wantedFontSize = existing.fontSize + existing.fontSizeIncrease;
+        }
+      }else{
+        words.push($.extend({}, settings.wordDefaults, word));
+      }
+    }
 
     var startForce = function(elem) {
       var $elem = $(elem);

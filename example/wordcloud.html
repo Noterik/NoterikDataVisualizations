@@ -31,15 +31,19 @@
       var interval = setInterval(function(){
         if(i < max){
 
-          var word = words[Math.floor(Math.random() * words.length)];
-          var font = fonts[Math.floor(Math.random() * fonts.length)];
+          var newWords = [];
 
-          console.info("Adding word:", word, "with font:", font);
+          newWords = [
+            {
+              text: words[Math.floor(Math.random() * words.length)],
+              font: fonts[Math.floor(Math.random() * fonts.length)]
+            },{
+              text: words[Math.floor(Math.random() * words.length)],
+              font: fonts[Math.floor(Math.random() * fonts.length)]
+            }
+          ]
 
-          wordcloud.ntkWordcloud('addWord', {
-            text: word,
-            fontFamily: font
-          })
+          wordcloud.ntkWordcloud('addWords', newWords);
           i++;
         }else{
 
