@@ -58,11 +58,8 @@
       text.exit().remove();
 
       path.enter().append("path")
-        .style("fill", function(d, i){
-          if(d.data.color){
-            return d.data.color;
-          }
-          return color(i);
+        .attr("class", function(d){
+          return d.data.color;
         })
         .each(function(d){
           this._current = d;
@@ -112,12 +109,13 @@
     };
 
     function animate(){
-      path.transition().duration(500).attrTween("d", arcTween).style("fill", function(d, i){
-        if(d.data.color){
-          return d.data.color;
-        }
-        return color(i);
+      path.transition().duration(500).attrTween("d", arcTween);
+
+      path.attr("class", function(d){
+        return d.data.color;
+
       });
+      
       text.transition().text(function(d){
         return d.data.label;
       });
