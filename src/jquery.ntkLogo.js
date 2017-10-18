@@ -111,7 +111,7 @@
         .style("text-anchor", "middle")
         .style("fill", options.textColor)
         .style("font-family",options.fontFamily)
-        .style("font-size", options.fontSize)
+        .style("font-size", options.fontSize +"px")
         .attr("transform", "translate(0, " + (options.fontSize / 3 ) + ")")
         .text(function(d){
           return d.text;

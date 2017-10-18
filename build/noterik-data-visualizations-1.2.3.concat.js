@@ -1,4 +1,4 @@
-/*! noterik-data-visualizations - v1.2.3 - 2017-09-19 */(function($) {
+/*! noterik-data-visualizations - v1.2.3 - 2017-10-17 */(function($) {
 
   $.fn.extend({
     ntkBarChart: function(options, arg) {
@@ -234,7 +234,7 @@
         .style("text-anchor", "middle")
         .style("fill", options.textColor)
         .style("font-family",options.fontFamily)
-        .style("font-size", options.fontSize)
+        .style("font-size", options.fontSize +"px")
         .attr("transform", "translate(0, " + (options.fontSize / 3 ) + ")")
         .text(function(d){
           return d.text;
