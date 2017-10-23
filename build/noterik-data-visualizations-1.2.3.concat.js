@@ -1,4 +1,4 @@
-/*! noterik-data-visualizations - v1.2.3 - 2017-10-17 */(function($) {
+/*! noterik-data-visualizations - v1.2.3 - 2017-10-23 */(function($) {
 
   $.fn.extend({
     ntkBarChart: function(options, arg) {
@@ -400,8 +400,14 @@
       text.exit().remove();
 
       path.enter().append("path")
+        .style("fill", function(d, i){
+          if(d.data.color){
+            return d.data.color;
+          }
+          return color(i);
+        })
         .attr("class", function(d){
-          return d.data.color;
+          return d.data.style;
         })
         .each(function(d){
           this._current = d;
@@ -429,6 +435,9 @@
             return settings.fontColor;
           }
         })
+        .attr("class", function(d){
+          return settings.style;
+        })
         .each(function(d){
           this._current = d;
         });
@@ -451,13 +460,21 @@
     };
 
     function animate(){
-      path.transition().duration(500).attrTween("d", arcTween);
+      if (settings.style != "") {
+        path.transition().duration(500).attrTween("d", arcTween);
 
-      path.attr("class", function(d){
-        return d.data.color;
+        path.attr("class", function(d){
+          return d.data.style;
+        });
+      } else {
+        path.transition().duration(500).attrTween("d", arcTween).style("fill", function(d, i){
+          if(d.data.color){
+            return d.data.color;
+          }
+          return color(i);
+        });
+      }
 
-      });
-      
       text.transition().text(function(d){
         return d.data.label;
       });
@@ -509,6 +526,7 @@
     data: [],
     fontFamily: "Verdana,sans-serif",
     fontColor: "#FFFFFF",
+    style: ""
   };
 
   $.ntkPieChart = function(elem, options, arg) {
