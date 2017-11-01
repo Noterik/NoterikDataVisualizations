@@ -34,6 +34,8 @@
 
       var svg = d3.select(elem).append("svg")
         .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("width", settings.width)
+        .attr("height", settings.height)
         .attr("viewBox", "0 0 " + settings.width + " " + settings.height);
 
       var value = arg ? arg : settings.minValue;

@@ -1,4 +1,4 @@
-/*! noterik-data-visualizations - v1.2.3 - 2017-10-23 */(function($) {
+/*! noterik-data-visualizations - v1.2.3 - 2017-11-01 */(function($) {
 
   $.fn.extend({
     ntkBarChart: function(options, arg) {
@@ -192,6 +192,8 @@
 
       var svg = d3.select($elem[0]).append("svg")
         .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("width", settings.width)
+        .attr("height", settings.height)
         .attr("viewBox", "0 0 " + settings.width + " " + settings.height)
         .append("g")
         .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")");
@@ -381,6 +383,8 @@
 
     var svg = d3.select(element[0]).append("svg")
       .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("width", settings.width)
+      .attr("height", settings.height)
       .attr("viewBox", "0 0 " + settings.width + " " + settings.height)
       .append("g")
       .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")");
@@ -584,6 +588,8 @@
 
       var svg = d3.select(elem).append("svg")
         .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("width", settings.width)
+        .attr("height", settings.height)
         .attr("viewBox", "0 0 " + settings.width + " " + settings.height);
 
       var value = arg ? arg : settings.minValue;
@@ -1068,6 +1074,8 @@
 
       settings._svg = d3.select(elem).append("svg")
         .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("width", settings.width)
+        .attr("height", settings.height)
         .attr("viewBox", "0 0 " + settings.width + " " + settings.height);
 
       $elem.data('ntk_wordcloud_settings', settings);
