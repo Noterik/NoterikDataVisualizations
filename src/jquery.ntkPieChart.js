@@ -115,6 +115,9 @@
           }
           return color(i);
         })
+        .attr("class", function(d){
+          return settings.style;
+        })
         .each(function(d){
           this._current = d;
         });
