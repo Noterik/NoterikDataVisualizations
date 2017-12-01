@@ -10,7 +10,6 @@
   <script>
     $(document).ready(function(){
       //Lets generate some data:
-
       var maxLabels = 5
         minValue = 1,
         maxValue = 5;
@@ -37,7 +36,12 @@
       addValue(data);
 
       var piechart = $('#piechart').ntkPieChart({
-        data: data
+        data: data,
+        labelCallback: function(element){
+          return element.attr("id", function(entry){
+            return "label_" + entry.data.label
+          })
+        }
       });
 
       var currentTick = 0;
@@ -59,8 +63,6 @@
           piechart.ntkPieChart('redraw');
         }
       }, 2000);
-
-
     });
   </script>
 
