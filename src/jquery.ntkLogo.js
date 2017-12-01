@@ -69,6 +69,8 @@
 
       var svg = d3.select($elem[0]).append("svg")
         .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("width", settings.width)
+        .attr("height", settings.height)
         .attr("viewBox", "0 0 " + settings.width + " " + settings.height)
         .append("g")
         .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")");
@@ -111,7 +113,7 @@
         .style("text-anchor", "middle")
         .style("fill", options.textColor)
         .style("font-family",options.fontFamily)
-        .style("font-size", options.fontSize)
+        .style("font-size", options.fontSize +"px")
         .attr("transform", "translate(0, " + (options.fontSize / 3 ) + ")")
         .text(function(d){
           return d.text;

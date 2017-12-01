@@ -20,7 +20,7 @@
       fns.reduce(function(acc, fn){
         return fn.apply(subject, [subject]);
       }, subject);
-    }
+    };
   }
 
   var PieChart = function(element, settings){
@@ -49,6 +49,8 @@
 
     var svg = d3.select(element[0]).append("svg")
       .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("width", settings.width)
+      .attr("height", settings.height)
       .attr("viewBox", "0 0 " + settings.width + " " + settings.height)
       .append("g")
       .attr("transform", "translate(" + settings.width / 2 + "," + settings.height / 2 + ")");
@@ -67,12 +69,12 @@
       function(element) {
         return element.text(function(d){
           return d.data.label;
-        })
+        });
       },
       function(element) {
         return element.attr("transform", function(d) {
           return "translate(" + arc.centroid(d) + ")";
-        })
+        });
       },
       function(element) {
         return element.style("font-family", function(d){
@@ -90,7 +92,7 @@
           }else{
             return settings.fontColor;
           }
-        })
+        });
       },
       function(element) {
         return element.each(function(d){
@@ -136,12 +138,21 @@
     };
 
     function animate(){
-      path.transition().duration(500).attrTween("d", arcTween).style("fill", function(d, i){
-        if(d.data.color){
-          return d.data.color;
-        }
-        return color(i);
-      });
+      if (settings.style !== "") {
+        path.transition().duration(500).attrTween("d", arcTween);
+
+        path.attr("class", function(d){
+          return d.data.style;
+        });
+      } else {
+        path.transition().duration(500).attrTween("d", arcTween).style("fill", function(d, i){
+          if(d.data.color){
+            return d.data.color;
+          }
+          return color(i);
+        });
+      }
+
       text.transition().text(function(d){
         return d.data.label;
       });
