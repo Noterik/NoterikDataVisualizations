@@ -1,21 +1,21 @@
 # NoterikDataVisualizations
 Data Visualization plugins for jQuery using d3.js, contains several jQuery plugins that can be used to visualize data.
 
-##Dependencies
+## Dependencies
 
-###Building
+### Building
 
 -NPM
 
 -Grunt
 
-###Runtime
+### Runtime
 
 -jQuery
 
 -d3
 
-##Building
+## Building
 
 Make sure you have npm installed, go to NoterikDataVisualization root directory and run:
 
@@ -31,7 +31,7 @@ grunt
 
 In NoterikDataVisualization root directory.
 
-##Usage
+## Usage
 
 For devel environment you can use:
 
@@ -61,7 +61,7 @@ $("#wordcloud").ntkWordcloud({setting: 'settingValue'})
 
 Examples can be found in the /examples folder and can be run without a webserver.
 
-##Piechart
+## Piechart
 
 Renders part values in a piechart. The amount of space a slice takes represents the part takes in the sum of all parts. Takes an array of data like:
 
@@ -88,7 +88,7 @@ DEMO:
 
 https://rawgit.com/Noterik/NoterikDataVisualizations/master/example/piechart.html
 
-###Initialization
+### Initialization
 
 A piechart can be initialized like this:
 
@@ -107,7 +107,7 @@ $('#piechart').ntkPiechart({
 });
 ```
 
-###Updating
+### Updating
 
 Data should be changed directly in the array that was used to initialize the chart. The chart maintains a direct coupling to the array and any changes to the array can be reflected by doing a redraw call like this:
 
@@ -121,15 +121,34 @@ If you want to change the dataset with a new one, you can use the 'setData' call
 $('#piechart').ntkPiechart('setData', data);
 ```
 
-###Piechart settings
+### Customization
+
+The label of a PieChart can be customized by with the labelCallback function. This callback function takes an "element" argument which is a D3 element in which the label is rendered. For more information on how to customize these elements, please look here: https://github.com/d3/d3-selection/blob/master/README.md#modifying-elements
+
+Should always return the element being modified!
+
+```
+// Example on how to set an id on a label
+var piechart = $('#piechart').ntkPieChart({
+  data: data,
+  labelCallback: function(element){ // Element is a D3 selected element that is being rendered for the current data entry.
+    return element.attr("id", function(entry){ // Entry contains a reference to the current data entry being rendered.
+      return "label_" + entry.data.label
+    })
+  }
+});
+```
+
+### Piechart settings
 
 Setting    |  Type | Explanation
 -----------|-------|-------------
 data   | Array | The data you want to render, look at chapter summary above.
 fontFamily  | String | The font family to display the labels with.
 fontColor  | Color HEX | The color of the labels.
+labelCallback | Function | A callback with which you can customize your label.
 
-##Wordcloud
+## Wordcloud
 
 Renders words in a cloud. When a new word is added, it "shoots" it into the existing cloud. If a word is added that
 already exists, the size of the existing word will be increased. Example code can be found in /examples/wordcloud.html
@@ -138,7 +157,7 @@ DEMO:
 
 https://rawgit.com/Noterik/NoterikDataVisualizations/master/example/wordcloud.html
 
-###Initialization
+### Initialization
 
 A wordcloud can be initialized like this:
 
@@ -154,7 +173,7 @@ $('#wordcloud').ntkWordcloud({
 });
 ```
 
-###Updating
+### Updating
 
 A word can be added like this:
 
@@ -174,7 +193,7 @@ $('#wordcloud').ntkWordcloud('addWord', [{
 }]);
 ```
 
-###Wordcloud generic settings
+### Wordcloud generic settings
 Setting    |  Type | Explanation
 -----------|-------|-------------
 words      | Array | The array of words that you want to show when initialization the words. (predefined words)
@@ -183,7 +202,7 @@ wordDefaults | Object | The default settings for the word that is being added, p
 defaultCharge | Integer | Decides if nodes are attracted to each or not, positive means attraction, negative means repel.
 chargeMultiplier | Integer | Charge is calculated from fontSize like this : fontSize * chargeMultiplier, larger font means lower charge.
 
-###Wordcloud word settings
+### Wordcloud word settings
 These are passed as an object in the generic wordDefaults object like:
 
 ```javascript
@@ -204,7 +223,7 @@ $('#wordcloud').ntkWordcloud('addWord', {
 });
 ```
 
-##Waterball
+## Waterball
 
 Based on http://bl.ocks.org/brattonc/raw/5e5ce9beee483220e2f6/
 
@@ -216,7 +235,7 @@ DEMO:
 
 https://rawgit.com/Noterik/NoterikDataVisualizations/master/example/waterball.html
 
-###Initialization
+### Initialization
 
 A waterball can be initialized like this:
 
@@ -233,7 +252,7 @@ $('#waterball').ntkWaterball({
 });
 ```
 
-###Updating
+### Updating
 
 The value of a waterball can be updated like this:
 
@@ -241,7 +260,7 @@ The value of a waterball can be updated like this:
 $('#waterball').ntkWaterball("update", 310);
 ```
 
-###Waterball settings
+### Waterball settings
 
 Setting    |  Type | Explanation
 -----------|-------|-------------
@@ -266,7 +285,7 @@ displayPercent | Boolean | If true, a % symbol is displayed after the value.
 textColor | Color HEX | The color of the value text when the wave does not overlap it.
 waveTextColor | Color HEX | The color of the value text when the wave overlaps it.
 
-##Logo
+## Logo
 
 Displays the Noterik logo and allows a text to be rendered in the center.
 For supports one animation called: "rotate" which rotates the two arcs on the
@@ -278,7 +297,7 @@ DEMO:
 
 https://rawgit.com/Noterik/NoterikDataVisualizations/master/example/logo.html
 
-###Initialization
+### Initialization
 
 The logo can be initialized like this:
 
@@ -294,7 +313,7 @@ $('#logo').ntkLogo({
 });
 ```
 
-###Updating
+### Updating
 
 The text in the logo can be updated like this:
 
@@ -305,7 +324,7 @@ $('#logo').ntkLogo('setText', {
 });
 ```
 
-###Logo settings
+### Logo settings
 
 Setting    |  Type | Explanation
 -----------|-------|-------------

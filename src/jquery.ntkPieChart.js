@@ -13,6 +13,16 @@
     }
   });
 
+  function pipe(){
+    var fns = Array.prototype.slice.call(arguments);
+    console.log('fns = ', fns);
+    return function(subject){
+      fns.reduce(function(acc, fn){
+        return fn.apply(subject, [subject]);
+      }, subject);
+    }
+  }
+
   var PieChart = function(element, settings){
     var self = this;
     settings = jQuery.extend({}, this.defaults, settings);
@@ -53,6 +63,45 @@
     var text = svg.selectAll("text")
       .data(pie(settings.data));
 
+    var textPipeFns = [
+      function(element) {
+        return element.text(function(d){
+          return d.data.label;
+        })
+      },
+      function(element) {
+        return element.attr("transform", function(d) {
+          return "translate(" + arc.centroid(d) + ")";
+        })
+      },
+      function(element) {
+        return element.style("font-family", function(d){
+          if(d.fontFamily){
+            return d.fontFamily;
+          }else{
+            return settings.fontFamily;
+          }
+        });
+      },
+      function(element) {
+        return element.style("fill", function(d){
+          if(d.fontColor){
+            return d.fontColor;
+          }else{
+            return settings.fontColor;
+          }
+        })
+      },
+      function(element) {
+        return element.each(function(d){
+          this._current = d;
+        });
+      }
+    ];
+
+    if(settings.labelCallback) textPipeFns.push(settings.labelCallback);
+    var textPipe = pipe.apply(this, textPipeFns);
+
     var render = function(){
       path.exit().remove();
       text.exit().remove();
@@ -68,32 +117,7 @@
           this._current = d;
         });
 
-
-      text.enter().append("text")
-        .text(function(d){
-          return d.data.label;
-        })
-        .attr("transform", function(d){
-          return "translate(" + arc.centroid(d) + ")";
-        })
-        .style("font-family", function(d){
-          if(d.fontFamily){
-            return d.fontFamily;
-          }else{
-            return settings.fontFamily;
-          }
-        })
-        .style("fill", function(d){
-          if(d.fontColor){
-            return d.fontColor;
-          }else{
-            return settings.fontColor;
-          }
-        })
-        .each(function(d){
-          this._current = d;
-        });
-
+      textPipe(text.enter().append("text"));
     };
 
     render();
@@ -169,6 +193,7 @@
     data: [],
     fontFamily: "Verdana,sans-serif",
     fontColor: "#FFFFFF",
+    labelCallback: null,
   };
 
   $.ntkPieChart = function(elem, options, arg) {

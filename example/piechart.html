@@ -37,7 +37,12 @@
       addValue(data);
 
       var piechart = $('#piechart').ntkPieChart({
-        data: data
+        data: data,
+        labelCallback: function(element){
+          return element.attr("id", function(entry){
+            return "label_" + entry.data.label
+          })
+        }
       });
 
       var currentTick = 0;
