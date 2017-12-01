@@ -120,7 +120,7 @@
     };
 
     function animate(){
-      if (settings.style != "") {
+      if (settings.style !== "") {
         path.transition().duration(500).attrTween("d", arcTween);
 
         path.attr("class", function(d){
