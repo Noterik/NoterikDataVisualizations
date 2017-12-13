@@ -5,7 +5,7 @@
 <body style="height: 100%; margin: 0;">
   <script src="../lib/d3/d3.min.js"></script>
   <script src="../lib/jquery/dist/jquery.min.js"></script>
-  <script src="../src/jquery.ntkPieChart.js"></script>
+  <script src="../dist/noterik-data-visualizations-1.4.0.min.js"></script>
   <script src="js/chance.min.js"></script>
   <script>
     $(document).ready(function(){
@@ -37,12 +37,33 @@
 
       var piechart = $('#piechart').ntkPieChart({
         data: data,
+        textAnimationDuration: 400,
+        sliceAnimationDuration: 500,
         labelCallback: function(element){
-          return element.attr("id", function(entry){
-            return "label_" + entry.data.label
-          })
+          return element
+            .attr("id", function(entry, i){
+              return "label_" + i;
+            })
+            .style("fill", function(){
+              return "red";
+            });
         }
       });
+
+      piechart.on('slice-animation-finished', function(e){
+        console.log('slice animation is done!');
+      });
+
+      piechart.on('text-animation-finished', function(e){
+        console.log('text animation is done!');
+      });
+
+      piechart.on('animation-finished', function(e){
+        console.log('all animations done!');
+      });
+
+      const label = piechart.find('#label_0');
+      label.css("fill", "blue");
 
       var currentTick = 0;
 

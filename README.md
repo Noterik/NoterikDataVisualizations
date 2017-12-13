@@ -147,6 +147,30 @@ data   | Array | The data you want to render, look at chapter summary above.
 fontFamily  | String | The font family to display the labels with.
 fontColor  | Color HEX | The color of the labels.
 labelCallback | Function | A callback with which you can customize your label.
+sliceAnimationDuration | Integer | The duration of the slice animation. (default (500ms)
+textAnimationDuration | Integer | The duration of the text animation. (default 750 ms)
+
+### Piechart events
+
+You can listen to piecharts by using jQuery .on() like this:
+
+```
+// Example on how to bind an event listener
+var piechart = $('#piechart').ntkPieChart({
+  data: data,
+});
+
+piechart.on('slice-animation-finished', function(){
+  //Callback
+  console.log('slice animation has finished!')
+});
+```
+
+Event      |  Description
+-----------|--------------
+slice-animation-finished | Triggered when the slice animation on all slices has finished.
+text-animation-finished | Triggered when the text animation on all labels has finished.
+animation-finished | Triggered when all animations have finished.
 
 ## Wordcloud
 

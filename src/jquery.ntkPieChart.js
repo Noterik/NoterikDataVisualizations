@@ -1,5 +1,14 @@
 (function($) {
 
+  function allTransitionsDone(transition, callback) {
+    if (typeof callback !== "function") throw new Error("Wrong callback in endall");
+    if (transition.size() === 0) { callback(); }
+    var n = 0;
+    transition
+      .each(function() { ++n; })
+      .each("end", function() { if (!--n) callback.apply(this, arguments); });
+  }
+
   $.fn.extend({
     ntkPieChart: function(options, arg) {
       // the selector or runs the function once per
@@ -141,14 +150,26 @@
     };
 
     function animate(){
+      var sliceDone = false, textDone = false;
+
+      function isFinished(){
+        if (sliceDone && textDone){
+          element.trigger('animation-finished');
+        }
+      }
+
       if (settings.style !== "") {
-        path.transition().duration(500).attrTween("d", arcTween);
+        path.transition().duration(settings.sliceAnimationDuration).attrTween("d", arcTween).call(allTransitionsDone, function(){
+          element.trigger('slice-animation-finished');
+          sliceDone = true;
+          isFinished();
+        });
 
         path.attr("class", function(d){
           return d.data.style;
         });
       } else {
-        path.transition().duration(500).attrTween("d", arcTween).style("fill", function(d, i){
+        path.transition().duration(settings.sliceAnimationDuration).attrTween("d", arcTween).style("fill", function(d, i){
           if(d.data.color){
             return d.data.color;
           }
@@ -159,7 +180,11 @@
       text.transition().text(function(d){
         return d.data.label;
       });
-      text.transition().duration(750).attrTween("transform", textTween);
+      text.transition().duration(settings.textAnimationDuration).attrTween("transform", textTween).call(allTransitionsDone, function(){
+        element.trigger('text-animation-finished');
+        textDone = true;
+        isFinished();
+      });
     }
 
     function textTween(a){
@@ -208,6 +233,8 @@
     fontFamily: "Verdana,sans-serif",
     fontColor: "#FFFFFF",
     labelCallback: null,
+    sliceAnimationDuration: 500,
+    textAnimationDuration: 750,
   };
 
   $.ntkPieChart = function(elem, options, arg) {
