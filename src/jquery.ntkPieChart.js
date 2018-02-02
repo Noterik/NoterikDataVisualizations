@@ -1,5 +1,14 @@
 (function($) {
 
+  function allTransitionsDone(transition, callback) {
+    if (typeof callback !== "function") throw new Error("Wrong callback in endall");
+    if (transition.size() === 0) { callback(); }
+    var n = 0;
+    transition
+      .each(function() { ++n; })
+      .each("end", function() { if (!--n) callback.apply(this, arguments); });
+  }
+
   $.fn.extend({
     ntkPieChart: function(options, arg) {
       // the selector or runs the function once per
@@ -12,6 +21,16 @@
       return this;
     }
   });
+
+  function pipe(){
+    var fns = Array.prototype.slice.call(arguments);
+    console.log('fns = ', fns);
+    return function(subject){
+      fns.reduce(function(acc, fn){
+        return fn.apply(subject, [subject]);
+      }, subject);
+    };
+  }
 
   var PieChart = function(element, settings){
     var self = this;
@@ -55,6 +74,45 @@
     var text = svg.selectAll("text")
       .data(pie(settings.data));
 
+    var textPipeFns = [
+      function(element) {
+        return element.text(function(d){
+          return d.data.label;
+        });
+      },
+      function(element) {
+        return element.attr("transform", function(d) {
+          return "translate(" + arc.centroid(d) + ")";
+        });
+      },
+      function(element) {
+        return element.style("font-family", function(d){
+          if(d.fontFamily){
+            return d.fontFamily;
+          }else{
+            return settings.fontFamily;
+          }
+        });
+      },
+      function(element) {
+        return element.style("fill", function(d){
+          if(d.fontColor){
+            return d.fontColor;
+          }else{
+            return settings.fontColor;
+          }
+        });
+      },
+      function(element) {
+        return element.each(function(d){
+          this._current = d;
+        });
+      }
+    ];
+
+    if(settings.labelCallback) textPipeFns.push(settings.labelCallback);
+    var textPipe = pipe.apply(this, textPipeFns);
+
     var render = function(){
       path.exit().remove();
       text.exit().remove();
@@ -67,41 +125,13 @@
           return color(i);
         })
         .attr("class", function(d){
-          return d.data.style;
-        })
-        .each(function(d){
-          this._current = d;
-        });
-
-
-      text.enter().append("text")
-        .text(function(d){
-          return d.data.label;
-        })
-        .attr("transform", function(d){
-          return "translate(" + arc.centroid(d) + ")";
-        })
-        .style("font-family", function(d){
-          if(d.fontFamily){
-            return d.fontFamily;
-          }else{
-            return settings.fontFamily;
-          }
-        })
-        .style("fill", function(d){
-          if(d.fontColor){
-            return d.fontColor;
-          }else{
-            return settings.fontColor;
-          }
-        })
-        .attr("class", function(d){
           return settings.style;
         })
         .each(function(d){
           this._current = d;
         });
 
+      textPipe(text.enter().append("text"));
     };
 
     render();
@@ -120,14 +150,26 @@
     };
 
     function animate(){
+      var sliceDone = false, textDone = false;
+
+      function isFinished(){
+        if (sliceDone && textDone){
+          element.trigger('animation-finished');
+        }
+      }
+
       if (settings.style !== "") {
-        path.transition().duration(500).attrTween("d", arcTween);
+        path.transition().duration(settings.sliceAnimationDuration).attrTween("d", arcTween).call(allTransitionsDone, function(){
+          element.trigger('slice-animation-finished');
+          sliceDone = true;
+          isFinished();
+        });
 
         path.attr("class", function(d){
           return d.data.style;
         });
       } else {
-        path.transition().duration(500).attrTween("d", arcTween).style("fill", function(d, i){
+        path.transition().duration(settings.sliceAnimationDuration).attrTween("d", arcTween).style("fill", function(d, i){
           if(d.data.color){
             return d.data.color;
           }
@@ -138,7 +180,11 @@
       text.transition().text(function(d){
         return d.data.label;
       });
-      text.transition().duration(750).attrTween("transform", textTween);
+      text.transition().duration(settings.textAnimationDuration).attrTween("transform", textTween).call(allTransitionsDone, function(){
+        element.trigger('text-animation-finished');
+        textDone = true;
+        isFinished();
+      });
     }
 
     function textTween(a){
@@ -186,7 +232,9 @@
     data: [],
     fontFamily: "Verdana,sans-serif",
     fontColor: "#FFFFFF",
-    style: ""
+    labelCallback: null,
+    sliceAnimationDuration: 500,
+    textAnimationDuration: 750,
   };
 
   $.ntkPieChart = function(elem, options, arg) {

@@ -121,6 +121,24 @@ If you want to change the dataset with a new one, you can use the 'setData' call
 $('#piechart').ntkPiechart('setData', data);
 ```
 
+### Customization
+
+The label of a PieChart can be customized by with the labelCallback function. This callback function takes an "element" argument which is a D3 element in which the label is rendered. For more information on how to customize these elements, please look here: https://github.com/d3/d3-selection/blob/master/README.md#modifying-elements
+
+Should always return the element being modified!
+
+```
+// Example on how to set an id on a label
+var piechart = $('#piechart').ntkPieChart({
+  data: data,
+  labelCallback: function(element){ // Element is a D3 selected element that is being rendered for the current data entry.
+    return element.attr("id", function(entry){ // Entry contains a reference to the current data entry being rendered.
+      return "label_" + entry.data.label
+    })
+  }
+});
+```
+
 ### Piechart settings
 
 Setting    |  Type | Explanation
@@ -128,6 +146,31 @@ Setting    |  Type | Explanation
 data   | Array | The data you want to render, look at chapter summary above.
 fontFamily  | String | The font family to display the labels with.
 fontColor  | Color HEX | The color of the labels.
+labelCallback | Function | A callback with which you can customize your label.
+sliceAnimationDuration | Integer | The duration of the slice animation. (default (500ms)
+textAnimationDuration | Integer | The duration of the text animation. (default 750 ms)
+
+### Piechart events
+
+You can listen to piecharts by using jQuery .on() like this:
+
+```
+// Example on how to bind an event listener
+var piechart = $('#piechart').ntkPieChart({
+  data: data,
+});
+
+piechart.on('slice-animation-finished', function(){
+  //Callback
+  console.log('slice animation has finished!')
+});
+```
+
+Event      |  Description
+-----------|--------------
+slice-animation-finished | Triggered when the slice animation on all slices has finished.
+text-animation-finished | Triggered when the text animation on all labels has finished.
+animation-finished | Triggered when all animations have finished.
 
 ## Wordcloud
 
