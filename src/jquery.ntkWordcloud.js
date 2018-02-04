@@ -51,14 +51,14 @@
             return d.color;
           }
         })
-        .text(function(d){ return d.text })
+        .text(function(d){ return d.text; });
 
       force.nodes(words).start();
     }.bind(this);
 
     this.addWords = function(newWords) {
       var self = this;
-      newWords.forEach(function(w) { self.addWord(w) });
+      newWords.forEach(function(w) { self.addWord(w); });
     }.bind(this);
 
     this.addWord = function(word) {
@@ -131,7 +131,7 @@
 
         d.width = bbox.width;
         d.height = bbox.height;
-      })
+      });
 
       var q = d3.geom.quadtree(words),
 		    i = 0,
@@ -142,16 +142,16 @@
 	    }
 
       text
-        .attr('font-size', function(d){ return d.fontSize})
+        .attr('font-size', function(d){ return d.fontSize; })
         .attr('x', function(d) {
           return d.x;
         })
         .attr('y', function(d) {
           return d.y;
-        })
+        });
     });
 
-  }
+  };
 
   $.fn.extend({
     ntkWordcloud: function(options, arg) {
