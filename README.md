@@ -68,14 +68,14 @@ Renders part values in a piechart. The amount of space a slice takes represents 
 ```json
 [
   {
-    color: "#043ae2",
-    label: "fimumlu",
-    value: 3
+    "color": "#043ae2",
+    "label": "fimumlu",
+    "value": 3
   },
   {
-    color: "#e51f43",
-    label: "biak",
-    value: 1
+    "color": "#e51f43",
+    "label": "biak",
+    "value": 1
   }
 ]
 ```
@@ -127,7 +127,7 @@ The label of a PieChart can be customized by with the labelCallback function. Th
 
 Should always return the element being modified!
 
-```
+```javascript
 // Example on how to set an id on a label
 var piechart = $('#piechart').ntkPieChart({
   data: data,
@@ -154,7 +154,7 @@ textAnimationDuration | Integer | The duration of the text animation. (default 7
 
 You can listen to piecharts by using jQuery .on() like this:
 
-```
+```javascript
 // Example on how to bind an event listener
 var piechart = $('#piechart').ntkPieChart({
   data: data,
@@ -223,8 +223,6 @@ Setting    |  Type | Explanation
 words      | Array | The array of words that you want to show when initialization the words. (predefined words)
 gravity    | Double| The gravity that the center of the cloud has, defines how fast words shoot to the wordcloud, and how hard they are pulled to the center.
 wordDefaults | Object | The default settings for the word that is being added, please check table below for available word settings.
-defaultCharge | Integer | Decides if nodes are attracted to each or not, positive means attraction, negative means repel.
-chargeMultiplier | Integer | Charge is calculated from fontSize like this : fontSize * chargeMultiplier, larger font means lower charge.
 
 ### Wordcloud word settings
 These are passed as an object in the generic wordDefaults object like:
@@ -246,6 +244,15 @@ $('#wordcloud').ntkWordcloud('addWord', {
   color: '#123456'
 });
 ```
+
+Setting    |  Type | Explanation
+-----------|-------|-------------
+wordIncreaseBy | Integer | How much will the fontSize be increased if the word already exists (percentage).
+text | String | The text of the word.
+color | HEX color code or string "random" | The color of a word, either a hex string like #000000, or the the string "random" to generate a random color.
+fontSize | Integer | The font size of the text.
+fontFamily  | String | The font family to use for the text.
+charge  | Integer | Value indicating if words repel or attract to each other, a positive value means the word will attract other words, and negative value means the word will repel other words.
 
 ## Waterball
 

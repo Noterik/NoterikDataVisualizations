@@ -29,6 +29,7 @@
       .force()
       .nodes(words)
       .gravity(options.gravity)
+      .charge(function(d) { return d.charge || -500; })
       .size([width, height]);
 
     //Public functions
@@ -211,7 +212,8 @@
       color: "random", //Can either be a HEX string or "random" <- means random color will be generated
       fontSize: 30,
       wordIncreaseBy: 5, //How much will the fontSize be increased if the word already exists (percentage),
-      fontFamily: 'Helvetica'
+      fontFamily: 'Helvetica',
+      charge: null,
     },
     defaultCharge: -1500, //Decides if nodes are attracted to each or not, positive means attraction, negative means repel
     chargeMultiplier: -50 //Charge is calculated from fontSize like this (fontSize * chargeMultiplier)
