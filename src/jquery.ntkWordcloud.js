@@ -7,6 +7,153 @@
 */
 (function($) {
 
+  var WordCloud = function($element, options) {
+    //Public variables
+    this.options = options;
+
+    //Private variables
+    var words = [],
+      width = $element.width(),
+      height = $element.height();
+
+    var svg = d3.select($element[0]).append("svg")
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", "0 0 " + width + " " + height);
+
+    var text = svg.selectAll('text');
+    var color = d3.scale.category20();
+
+    var force = d3.layout
+      .force()
+      .nodes(words)
+      .gravity(options.gravity)
+      .charge(function(d) { return d.charge || -500; })
+      .size([width, height]);
+
+    //Public functions
+    this.render = function() {
+      text = text.data(words, function(d) { return d.text; });
+
+      text.enter()
+        .append('text')
+        .attr("text-anchor", "middle")
+        .attr("font-family", function(d) {
+          return d.fontFamily;
+        })
+        .attr("font-size", function(d) {
+          return d.fontSize;
+        })
+        .attr("fill", function(d, i) {
+          if(d.color === "random"){
+            return color(i);
+          }else{
+            return d.color;
+          }
+        })
+        .text(function(d){ return d.text; });
+
+      force.nodes(words).start();
+    }.bind(this);
+
+    this.addWords = function(newWords) {
+      var self = this;
+      newWords.forEach(function(w) { self.addWord(w); });
+    }.bind(this);
+
+    this.addWord = function(word) {
+      var existing = words.find(function(w){
+        return w.text === word.text;
+      });
+
+      if(existing){
+        existing.increaseTo = existing.increaseTo ?
+          existing.increaseTo + existing.wordIncreaseBy : existing.wordIncreaseBy;
+      } else {
+        words.push($.extend({}, this.options.wordDefaults, word));
+      }
+    }.bind(this);
+
+    this.destroy = function() {
+      svg.node().remove();
+    }.bind(this);
+
+    function collide(node) {
+    	return function(quad, x1, y1, x2, y2) {
+    		var updated = false;
+    		if (quad.point && (quad.point !== node)) {
+
+    			var x = node.x - quad.point.x,
+    				y = node.y - quad.point.y,
+    				xSpacing = (quad.point.width + node.width) / 2,
+    				ySpacing = (quad.point.height + node.height) / 2,
+    				absX = Math.abs(x),
+    				absY = Math.abs(y),
+    				l,
+    				lx,
+    				ly;
+
+    			if (absX < xSpacing && absY < ySpacing) {
+    				l = Math.sqrt(x * x + y * y);
+
+    				lx = (absX - xSpacing) / l;
+    				ly = (absY - ySpacing) / l;
+
+    				// the one that's barely within the bounds probably triggered the collision
+    				if (Math.abs(lx) > Math.abs(ly)) {
+    					lx = 0;
+    				} else {
+    					ly = 0;
+    				}
+
+    				node.x -= x *= lx;
+    				node.y -= y *= ly;
+    				quad.point.x += x;
+    				quad.point.y += y;
+
+    				updated = true;
+    			}
+    		}
+    		return updated;
+    	};
+    }
+
+    force.on('tick', function() {
+
+      text.each(function(d) {
+        if(!d.originalFontSize) d.originalFontSize = d.fontSize;
+        if(d.increasedBy < d.increaseTo){
+          d.increasedBy += 0.5;
+          d.fontSize = d.originalFontSize + d.increasedBy;
+        }
+
+        var bbox = this.getBBox();
+
+        d.width = bbox.width;
+        d.height = bbox.height;
+      });
+
+      var q = d3.geom.quadtree(words),
+		    i = 0,
+	      n = words.length;
+
+	    while (++i < n) {
+		    q.visit(collide(words[i]));
+	    }
+
+      text
+        .attr('font-size', function(d){ return d.fontSize; })
+        .attr('x', function(d) {
+          return d.x;
+        })
+        .attr('y', function(d) {
+          return d.y;
+        });
+    });
+
+  };
+
   $.fn.extend({
     ntkWordcloud: function(options, arg) {
       //Merge the passed arguments with the default arguments defined at the bottom of the page.
@@ -16,194 +163,57 @@
         options = $.extend({}, $.ntkWordcloud.defaults);
       }
 
-      // this creates a plugin for each element in
-      // the selector or runs the function once per
-      // selector.  To have it do so for just the
-      // first element (once), return false after
-      // creating the plugin to stop the each iteration
       this.each(function() {
-        $.ntkWordcloud(this, options, arg);
+        $.ntkWordcloud(jQuery(this), options, arg);
       });
       return this;
     }
   });
 
-  $.ntkWordcloud = function(elem, options, arg) {
+  function getWordCloud($element) {
+    var instance = $element.data('wordcloud');
+    return instance;
+  }
 
-    //The functions that are public
-    var publicFns = {
-      addWords: function(words){
-        words.forEach(function(word){
-          add(word);
-        });
-        startForce(elem);
-      },
-      addWord: function(word){
-        add(word);
-        startForce(elem);
-      },
-      reset: function(){
-        $(this).html('');
-        var settings = $(this).data('ntk_wordcloud_settings');
-        settings.words = [];
-        init(this);
-      }
-    };
+  function createWordCloud($element, options) {
+    var instance = getWordCloud($element);
+    if (instance) instance.destroy();
 
-    function add(word){
-      var $elem = $(elem);
+    var newInstance = new WordCloud($element, options);
+    $element.data('wordcloud', newInstance);
+  }
 
-      var settings = $elem.data('ntk_wordcloud_settings');
-      var words = settings.words;
-
-      var existing = words.find(function(w){
-        return w.text === word.text;
-      });
-
-      if(existing){
-        if(existing.wantedFontSize){
-          existing.wantedFontSize += existing.fontSizeIncrease;
-        }else{
-          existing.wantedFontSize = existing.fontSize + existing.fontSizeIncrease;
-        }
-      }else{
-        words.push($.extend({}, settings.wordDefaults, word));
-      }
-    }
-
-    var startForce = function(elem) {
-      var $elem = $(elem);
-      var settings = $elem.data('ntk_wordcloud_settings');
-
-      var force = settings._force;
-      var svg = settings._svg;
-      var words = settings.words;
-
-      force.start();
-      svg.selectAll("text").remove();
-
-      elem = svg.selectAll("g myCircleText")
-        .data(words.slice(1));
-
-      var color = d3.scale.category20();
-
-      var elemEnter = elem.enter()
-        .append("text")
-        .text(function(d) {
-          return d.text;
-        })
-        .style("font-family", function(d){
-          return d.fontFamily;
-        })
-        .style("text-anchor", "middle")
-        .attr("dx", function(d) {
-          return this.getComputedTextLength() / 2;
-        })
-        .attr("fill", function(d, i) {
-          if(d.color === "random"){
-            return color(i);
-          }else{
-            return d.color;
-          }
-        });
-
-      svg.selectAll("text").each(function(d) {
-        var boundingBox = this.getBoundingClientRect();
-        d.textHeight = boundingBox.height;
-        d.textWidth = boundingBox.width;
-        d.x2 = function() {
-          return d.x + d.textWidth;
-        };
-        d.y2 = function() {
-          return d.y + d.textHeight;
-        };
-      });
-    };
-
-    var init = function(elem, options) {
-      var $elem = $(elem);
-      var existingSettings = $elem.data('ntk_wordcloud_settings');
-      var settings = options ? options : existingSettings;
-
-      //Width can be passed as arguments, otherwise just take full element space
-      if(!settings.width){
-        settings.width = $elem.width();
-      }
-
-      if(!settings.height){
-        settings.height = $elem.height();
-      }
-
-      //Create root element for force layout
-      var root = {
-        radius: 0,
-        fixed: true
-      };
-
-      //Add required parameters that might be missing to the words
-      settings.words = settings.words.map(function(word){
-        return $.extend({}, settings.wordDefaults, word);
-      });
-
-      //Add the root
-      settings.words.unshift(root);
-
-      //Initialize force layout
-      settings._force = d3.layout.force()
-        .gravity(settings.gravity)
-        .charge(function(d, i) {
-          return d.fontSize ? d.fontSize * settings.chargeMultiplier : settings.defaultCharge;
-        })
-        .nodes(settings.words)
-        .size([settings.width, settings.height]);
-
-      settings._svg = d3.select(elem).append("svg")
-        .attr("preserveAspectRatio", "xMinYMin meet")
-        .attr("width", settings.width)
-        .attr("height", settings.height)
-        .attr("viewBox", "0 0 " + settings.width + " " + settings.height);
-
-      $elem.data('ntk_wordcloud_settings', settings);
-
-      //Callback for animations
-      settings._force.on('tick', function(e){
-        settings._svg.selectAll("text")
-          .attr("transform", function(d){
-            var str;
-            if(!d.x || !d.y){
-              d.x = 0;
-              d.y = 0;
-            }
-            return "translate("+d.x+","+d.y+")";
-          })
-          .style("font-size", function(d){
-            if(d.wantedFontSize && d.wantedFontSize > d.fontSize){
-              d.fontSize++;
-            }
-            return d.fontSize + "px";
-          });
-      });
-
-      startForce(elem);
-    };
+  $.ntkWordcloud = function($element, options, arg) {
+    var instance = getWordCloud($element);
 
     if (options && typeof(options) === 'string') {
-      publicFns[options].apply(elem, [arg]);
-      return;
+      //publicFns[options].apply(elem, [arg]);
+      if (!instance) throw new Error('Not a wordcloud!');
+      if(options === 'reset') {
+        createWordCloud($element, instance.options);
+      } else {
+        instance[options].apply(instance, [arg]);
+      }
     } else if (options && typeof(options) === 'object') {
-      init(elem, options);
+      createWordCloud($element, options);
     }
+
+    if (instance) instance.render();
   };
+
 
   $.ntkWordcloud.defaults = {
     words: [],
-    gravity: 0.4, //Decides how quick the words will go to the center of gravity
+    gravity: 0.1, //Decides how quick the words will go to the center of gravity
     wordDefaults: {
+      increasedBy: 0,
+      increaseTo: 0,
       text: "Lorum",
       color: "random", //Can either be a HEX string or "random" <- means random color will be generated
       fontSize: 30,
-      fontSizeIncrease: 10, //How much will the fontSize be increased if the word already exists,
-      fontFamily: 'Helvetica'
+      wordIncreaseBy: 5, //How much will the fontSize be increased if the word already exists (percentage),
+      fontFamily: 'Helvetica',
+      charge: null,
     },
     defaultCharge: -1500, //Decides if nodes are attracted to each or not, positive means attraction, negative means repel
     chargeMultiplier: -50 //Charge is calculated from fontSize like this (fontSize * chargeMultiplier)
