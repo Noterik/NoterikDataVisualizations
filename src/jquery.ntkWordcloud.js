@@ -119,6 +119,76 @@
     	};
     }
 
+    function getAllBBox(layoutNodes) {
+      var minX, maxX, minY, maxY;
+
+      layoutNodes.each(function(d){
+        var bbox = this.getBBox();
+        var wordMinX = bbox.x;
+        var wordMaxX = bbox.x + bbox.width;
+        var wordMinY = bbox.y;
+        var wordMaxY = bbox.y + bbox.height;
+        if(!minX || wordMinX < minX) minX = wordMinX;
+        if(!maxX || wordMaxX > maxX) maxX = wordMaxX;
+        if(!minY || wordMinY < minY) minY = wordMinY;
+        if(!maxY || wordMaxY > maxY) maxY = wordMaxY;
+      });
+
+      return {
+        x: minX,
+        y: minY,
+        maxX: maxX,
+        maxY: maxY,
+        width: maxX - minX,
+        height: maxY - minY
+      };
+    }
+
+    function resizeLayout() {
+      var allBBox = getAllBBox(text);
+      var forceLayoutSize = force.size();
+      var layoutWidth = forceLayoutSize[0];
+      var layoutHeight = forceLayoutSize[1];
+
+      var xDiff = 0;
+      var yDiff = 0;
+      var wordsTop = 0;
+      var wordsLeft = 0;
+
+      if(allBBox.x < 0 || allBBox.maxX > layoutWidth){
+        if(allBBox.x < 0) {
+          xDiff += Math.abs(allBBox.x);
+        }
+
+        if(allBBox.maxX > layoutWidth) {
+          xDiff += allBBox.maxX - layoutWidth;
+        }
+      } else if(allBBox.y < 0) {
+        if(allBBox.y < 0) {
+          yDiff += Math.abs(allBBox.y);
+        }
+
+        if(allBBox.maxY > layoutHeight) {
+          yDiff += allBBox.maxY - layoutHeight;
+        }
+      }
+
+      if(xDiff > 0) {
+        yDiff = xDiff / layoutWidth * layoutHeight;
+      } else if(yDiff > 0) {
+        xDiff = yDiff / layoutHeight * layoutWidth;
+      }
+
+      if(xDiff > 0 || yDiff > 0) {
+
+        var newWidth = forceLayoutSize[0] + xDiff;
+        var newHeight = forceLayoutSize[1] + yDiff;
+
+        force.size([newWidth, newHeight]);
+        svg.attr("viewBox", "0 0 " + newWidth + " " + newHeight);
+      }
+    }
+
     force.on('tick', function() {
 
       text.each(function(d) {
@@ -150,8 +220,8 @@
         .attr('y', function(d) {
           return d.y;
         });
+      resizeLayout();
     });
-
   };
 
   $.fn.extend({
