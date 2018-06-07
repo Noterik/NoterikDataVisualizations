@@ -24,7 +24,7 @@
       for(var i = 0; i < maxWords; i++){
         words[i] = chance.word();
       }
-      var max = 20;
+      var max = 200;
       var i = 0;
     /*
       //Lets "shoot" in the following amount of words, there might be duplicates as the amount of words might be lower then the amount we're going to shoot in.
@@ -71,13 +71,10 @@
           wordcloud.ntkWordcloud('addWords', newWords);
           i++;
         }else{
-
-          console.info("Lets reset the wordcloud!");
-
           wordcloud.ntkWordcloud('reset');
           i = 0;
         }
-      }, 2000);
+      }, 100);
 
     })
 
