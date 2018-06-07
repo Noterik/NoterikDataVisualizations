@@ -1,10 +1,8 @@
-/*
-* jquery.ntkWordcloud.js
+/* * jquery.ntkWordcloud.js
 *
 * Renders a wordcloud, words can be added dynamically by using the "addWord" call.
 * Wordcloud can be initialized by "jQuery UI-like" style like: $("<css selector>").ntkWordcloud({setting: "settingValue"})
-* For a detailed list of available settings please check README
-*/
+* For a detailed list of available settings please check README */
 (function($) {
 
   var WordCloud = function($element, options) {
@@ -16,62 +14,61 @@
       width = $element.width(),
       height = $element.height();
 
-    var svg = d3.select($element[0]).append("svg")
-      .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("viewBox", "0 0 " + width + " " + height);
+    var wordsOutsideBoundary,
+      wordsBBox,
+      passedMaximumSize;
+
+    var fitToSizeTimeout;
+
+    var svg = d3.select($element[0]).append("svg").attr("preserveAspectRatio", "xMinYMin meet").attr("width", width).attr("height", height).attr("viewBox", "0 0 " + width + " " + height);
 
     var text = svg.selectAll('text');
     var color = d3.scale.category20();
 
-    var force = d3.layout
-      .force()
-      .nodes(words)
-      .gravity(options.gravity)
-      .charge(function(d) { return d.charge; })
-      .size([width, height]);
+    var force = d3.layout.force().nodes(words).gravity(options.gravity).charge(function(d) {
+      return d.charge;
+    }).size([width, height]);
 
     //Public functions
     this.render = function() {
-      text = text.data(words, function(d) { return d.text; });
+      text = text.data(words, function(d) {
+        return d.text;
+      });
 
-      text.enter()
-        .append('text')
-        .attr("text-anchor", "middle")
-        .attr("font-family", function(d) {
-          return d.fontFamily;
-        })
-        .attr("font-size", function(d) {
-          return d.fontSize;
-        })
-        .attr("fill", function(d, i) {
-          if(d.color === "random"){
-            return color(i);
-          }else{
-            return d.color;
-          }
-        })
-        .text(function(d){ return d.text; });
+      text.enter().append('text').attr("text-anchor", "middle").attr("font-family", function(d) {
+        return d.fontFamily;
+      }).attr("font-size", function(d) {
+        return d.fontSize;
+      }).attr("fill", function(d, i) {
+        if (d.color === "random") {
+          return color(i);
+        } else {
+          return d.color;
+        }
+      }).text(function(d) {
+        return d.text;
+      });
 
-      force.nodes(words).start();
+      force.nodes(words)
+        .start();
     }.bind(this);
 
     this.addWords = function(newWords) {
       var self = this;
-      newWords.forEach(function(w) { self.addWord(w); });
+      newWords.forEach(function(w) {
+        self.addWord(w);
+      });
     }.bind(this);
 
     this.addWord = function(word) {
-      var existing = words.find(function(w){
+      var existing = words.find(function(w) {
         return w.text === word.text;
       });
 
-      if(existing){
-        existing.increaseTo = existing.increaseTo ?
-          existing.increaseTo + existing.wordIncreaseBy : existing.wordIncreaseBy;
+      if (existing) {
+        existing.increaseTo = existing.increaseTo ? existing.increaseTo + existing.wordIncreaseBy : existing.wordIncreaseBy;
       } else {
-        words.push($.extend({}, this.options.wordDefaults, word));
+        words.push($.extend({}, this.options.wordDefaults, word, {added: performance.now()}));
       }
     }.bind(this);
 
@@ -80,59 +77,70 @@
     }.bind(this);
 
     function collide(node) {
-    	return function(quad, x1, y1, x2, y2) {
-    		var updated = false;
-    		if (quad.point && (quad.point !== node)) {
+      return function(quad, x1, y1, x2, y2) {
+        var updated = false;
+        if (quad.point && (quad.point !== node)) {
 
-    			var x = node.x - quad.point.x,
-    				y = node.y - quad.point.y,
-    				xSpacing = (quad.point.width + node.width) / 2,
-    				ySpacing = (quad.point.height + node.height) / 2,
-    				absX = Math.abs(x),
-    				absY = Math.abs(y),
-    				l,
-    				lx,
-    				ly;
+          var x = node.x - quad.point.x,
+            y = node.y - quad.point.y,
+            xSpacing = (quad.point.width + node.width) / 2,
+            ySpacing = (quad.point.height + node.height) / 2,
+            absX = Math.abs(x),
+            absY = Math.abs(y),
+            l,
+            lx,
+            ly;
 
-    			if (absX < xSpacing && absY < ySpacing) {
-    				l = Math.sqrt(x * x + y * y);
+          if (absX < xSpacing && absY < ySpacing) {
+            l = Math.sqrt(x * x + y * y);
 
-    				lx = (absX - xSpacing) / l;
-    				ly = (absY - ySpacing) / l;
+            lx = (absX - xSpacing) / l;
+            ly = (absY - ySpacing) / l;
 
-    				// the one that's barely within the bounds probably triggered the collision
-    				if (Math.abs(lx) > Math.abs(ly)) {
-    					lx = 0;
-    				} else {
-    					ly = 0;
-    				}
+            // the one that's barely within the bounds probably triggered the collision
+            if (Math.abs(lx) > Math.abs(ly)) {
+              lx = 0;
+            } else {
+              ly = 0;
+            }
 
-    				node.x -= x *= lx;
-    				node.y -= y *= ly;
-    				quad.point.x += x;
-    				quad.point.y += y;
+            node.x -= x *= lx;
+            node.y -= y *= ly;
+            quad.point.x += x;
+            quad.point.y += y;
 
-    				updated = true;
-    			}
-    		}
-    		return updated;
-    	};
+            updated = true;
+          }
+        }
+        return updated;
+      };
     }
 
-    function getAllBBox(layoutNodes) {
-      var minX, maxX, minY, maxY;
+    function getwordsBBox(layoutNodes) {
+      var minX,
+        maxX,
+        minY,
+        maxY;
+      var now = performance.now();
 
-      layoutNodes.each(function(d){
-        var bbox = this.getBBox();
-        var wordMinX = bbox.x;
-        var wordMaxX = bbox.x + bbox.width;
-        var wordMinY = bbox.y;
-        var wordMaxY = bbox.y + bbox.height;
-        if(!minX || wordMinX < minX) minX = wordMinX;
-        if(!maxX || wordMaxX > maxX) maxX = wordMaxX;
-        if(!minY || wordMinY < minY) minY = wordMinY;
-        if(!maxY || wordMaxY > maxY) maxY = wordMaxY;
-      });
+      layoutNodes.each(function(d) {
+        var timeDiff = now - d.added;
+        if (timeDiff > 1000) {
+          var bbox = this.getBBox();
+          var wordMinX = bbox.x;
+          var wordMaxX = bbox.x + bbox.width;
+          var wordMinY = bbox.y;
+          var wordMaxY = bbox.y + bbox.height;
+          if (!minX || wordMinX < minX)
+            minX = wordMinX;
+          if (!maxX || wordMaxX > maxX)
+            maxX = wordMaxX;
+          if (!minY || wordMinY < minY)
+            minY = wordMinY;
+          if (!maxY || wordMaxY > maxY)
+            maxY = wordMaxY;
+          }
+        });
 
       return {
         x: minX,
@@ -144,83 +152,126 @@
       };
     }
 
-    function resizeLayout() {
-      var allBBox = getAllBBox(text);
+    function areWordsOutsideBoundary() {
       var forceLayoutSize = force.size();
+
       var layoutWidth = forceLayoutSize[0];
       var layoutHeight = forceLayoutSize[1];
 
-      var xDiff = 0;
-      var yDiff = 0;
+      var outsideBoundary = wordsBBox.x < 0 || wordsBBox.maxX > layoutWidth || wordsBBox.y < 0 || wordsBBox.maxY > layoutHeight;
+      return outsideBoundary;
+    }
+
+    /*
+
+    function fitToSize() {
+      var wordsBBox = getwordsBBox(text);
+      var layoutSize = force.size();
+
+      var layoutHeight = forceLayoutSize[1];
+      var layoutWidth = forceLayoutSize[2];
+    }
+    */
+
+    function fitToSize() {
+      var width = wordsBBox.width;
+      var height = wordsBBox.height;
+      force.size([width, height]);
+      svg.attr("viewBox", "0 0 " + width + " " + height);
+    }
+
+    function resizeLayout() {
+      var forceLayoutSize = force.size();
+      var layoutWidth = forceLayoutSize[0];
+      var layoutHeight = forceLayoutSize[1];
+      var newWidth = layoutWidth;
+      var newHeight = layoutHeight;
       var wordsTop = 0;
       var wordsLeft = 0;
 
-      if(allBBox.x < 0 || allBBox.maxX > layoutWidth){
-        if(allBBox.x < 0) {
-          xDiff += Math.abs(allBBox.x);
+      var xDiff = 0;
+      var yDiff = 0;
+
+      if(wordsOutsideBoundary) {
+        passedMaximumSize = true;
+        if(wordsBBox.x < 0 || wordsBBox.maxX > layoutWidth){
+          if(wordsBBox.x < 0) {
+            xDiff += Math.abs(wordsBBox.x);
+            wordsTop = xDiff / layoutWidth * layoutHeight;
+          }
+
+          if(wordsBBox.maxX > layoutWidth) {
+            xDiff += wordsBBox.maxX - layoutWidth;
+          }
+
+          yDiff = xDiff / layoutWidth * layoutHeight;
+        } else if(wordsBBox.y < 0) {
+          if(wordsBBox.y < 0) {
+            yDiff += Math.abs(wordsBBox.y);
+            wordsLeft = yDiff / layoutHeight * layoutWidth;
+          }
+
+
+          if(wordsBBox.maxY > layoutHeight) {
+            yDiff += wordsBBox.maxY - layoutHeight;
+          }
+
+          xDiff = yDiff / layoutHeight * layoutWidth;
         }
 
-        if(allBBox.maxX > layoutWidth) {
-          xDiff += allBBox.maxX - layoutWidth;
-        }
-      } else if(allBBox.y < 0) {
-        if(allBBox.y < 0) {
-          yDiff += Math.abs(allBBox.y);
-        }
-
-        if(allBBox.maxY > layoutHeight) {
-          yDiff += allBBox.maxY - layoutHeight;
-        }
+        newWidth = layoutWidth + xDiff;
+        newHeight = layoutHeight + yDiff;
       }
 
-      if(xDiff > 0) {
-        yDiff = xDiff / layoutWidth * layoutHeight;
-      } else if(yDiff > 0) {
-        xDiff = yDiff / layoutHeight * layoutWidth;
-      }
-
-      if(xDiff > 0 || yDiff > 0) {
-
-        var newWidth = forceLayoutSize[0] + xDiff;
-        var newHeight = forceLayoutSize[1] + yDiff;
-
+      if(newWidth !== layoutWidth || newHeight !== layoutHeight) {
         force.size([newWidth, newHeight]);
         svg.attr("viewBox", "0 0 " + newWidth + " " + newHeight);
       }
+
+      if(wordsTop > 0 || wordsLeft > 0) {
+        text.attr('x', function(d) {
+          return d.x + wordsLeft;
+        }).attr('y', function(d) {
+          return d.y + wordsTop;
+        });
+      }
+
     }
 
     force.on('tick', function() {
-
+      wordsBBox = getwordsBBox(text);
       text.each(function(d) {
-        if(!d.originalFontSize) d.originalFontSize = d.fontSize;
-        if(d.increasedBy < d.increaseTo){
+        if (!d.originalFontSize)
+          d.originalFontSize = d.fontSize;
+        if (d.increasedBy < d.increaseTo) {
           d.increasedBy += 0.5;
           d.fontSize = d.originalFontSize + d.increasedBy;
         }
-
         var bbox = this.getBBox();
-
         d.width = bbox.width;
         d.height = bbox.height;
       });
 
       var q = d3.geom.quadtree(words),
-		    i = 0,
-	      n = words.length;
+        i = 0,
+        n = words.length;
 
-	    while (++i < n) {
-		    q.visit(collide(words[i]));
-	    }
+      while (++i < n) {
+        q.visit(collide(words[i]));
+      }
 
-      text
-        .attr('font-size', function(d){ return d.fontSize; })
-        .attr('x', function(d) {
-          return d.x;
-        })
-        .attr('y', function(d) {
-          return d.y;
-        });
-      resizeLayout();
+      text.attr('font-size', function(d) {
+        return d.fontSize;
+      }).attr('x', function(d) {
+        return d.x;
+      }).attr('y', function(d) {
+        return d.y;
+      });
+
+      wordsOutsideBoundary = areWordsOutsideBoundary();
+      if(wordsOutsideBoundary) {
+        resizeLayout();
+      }
     });
   };
 
@@ -247,7 +298,8 @@
 
   function createWordCloud($element, options) {
     var instance = getWordCloud($element);
-    if (instance) instance.destroy();
+    if (instance)
+      instance.destroy();
 
     var newInstance = new WordCloud($element, options);
     $element.data('wordcloud', newInstance);
@@ -258,8 +310,9 @@
 
     if (options && typeof(options) === 'string') {
       //publicFns[options].apply(elem, [arg]);
-      if (!instance) throw new Error('Not a wordcloud!');
-      if(options === 'reset') {
+      if (!instance)
+        throw new Error('Not a wordcloud!');
+      if (options === 'reset') {
         createWordCloud($element, instance.options);
       } else {
         instance[options].apply(instance, [arg]);
@@ -268,9 +321,9 @@
       createWordCloud($element, options);
     }
 
-    if (instance) instance.render();
-  };
-
+    if (instance)
+      instance.render();
+    };
 
   $.ntkWordcloud.defaults = {
     words: [],
@@ -283,8 +336,8 @@
       fontSize: 30,
       wordIncreaseBy: 5, //How much will the fontSize be increased if the word already exists (percentage),
       fontFamily: 'Helvetica',
-      charge: -500,
-    },
+      charge: -500
+    }
   };
 
 })(jQuery);
