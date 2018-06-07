@@ -19,10 +19,15 @@
       ]
 
       //Lets generate some words
-      var maxWords = 10;
+      var maxWords = 30;
       var words = [];
       for(var i = 0; i < maxWords; i++){
-        words[i] = chance.word();
+        words[i] = chance.sentence({
+          words: chance.integer({
+            min: 1,
+            max: 5
+          })
+        })
       }
       var max = 200;
       var i = 0;
@@ -71,10 +76,10 @@
           wordcloud.ntkWordcloud('addWords', newWords);
           i++;
         }else{
-          wordcloud.ntkWordcloud('reset');
-          i = 0;
+          //wordcloud.ntkWordcloud('reset');
+          //i = 0;
         }
-      }, 100);
+      }, 500);
 
     })
 
