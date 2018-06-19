@@ -19,7 +19,7 @@
       ]
 
       //Lets generate some words
-      var maxWords = 30;
+      var maxWords = 100;
       var words = [];
       for(var i = 0; i < maxWords; i++){
         words[i] = chance.sentence({
@@ -31,30 +31,6 @@
       }
       var max = 200;
       var i = 0;
-    /*
-      //Lets "shoot" in the following amount of words, there might be duplicates as the amount of words might be lower then the amount we're going to shoot in.
-
-
-      var newWords = words.map(function(w){
-        return {
-          text: w,
-          font: fonts[Math.floor(Math.random() * fonts.length)],
-        }
-      });
-      wordcloud.ntkWordcloud('addWords', newWords);
-    });
-
-      var newWords = [
-        {
-          text: words[Math.floor(Math.random() * words.length)],
-          font: fonts[Math.floor(Math.random() * fonts.length)]
-        },{
-          text: words[Math.floor(Math.random() * words.length)],
-          font: fonts[Math.floor(Math.random() * fonts.length)]
-        }
-      ]
-      wordcloud.ntkWordcloud('addWords', newWords);
-      */
 
 
       var interval = setInterval(function(){
@@ -79,7 +55,7 @@
           //wordcloud.ntkWordcloud('reset');
           //i = 0;
         }
-      }, 500);
+      }, 100);
 
     })
 
