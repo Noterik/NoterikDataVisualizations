@@ -14,6 +14,8 @@
       width = $element.width(),
       height = $element.height();
 
+    var scale = 1;
+
     var wordsOutsideBoundary,
       wordsBBox,
       passedMaximumSize;
@@ -22,7 +24,13 @@
 
     var svg = d3.select($element[0]).append("svg").attr("preserveAspectRatio", "xMinYMin meet").attr("width", width).attr("height", height).attr("viewBox", "0 0 " + width + " " + height);
 
-    var text = svg.selectAll('text');
+    var group = svg.append("g")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("transform", "scale(" + scale + ")")
+      .attr("transform-origin", "50% 50%");
+
+    var text = group.selectAll('text');
     var color = d3.scale.category20();
 
     var force = d3.layout.force().nodes(words).gravity(options.gravity).charge(function(d) {
@@ -39,7 +47,10 @@
         return d.fontFamily;
       }).attr("font-size", function(d) {
         return d.fontSize;
-      }).attr("fill", function(d, i) {
+      }).attr("transform", function(d) {
+        return "scale(" + d.scale + ")";
+      })
+      .attr("fill", function(d, i) {
         if (d.color === "random") {
           return color(i);
         } else {
@@ -152,14 +163,24 @@
       };
     }
 
-    function areWordsOutsideBoundary() {
+
+
+    function boundaryTooBigOrTooSmall() {
       var forceLayoutSize = force.size();
 
       var layoutWidth = forceLayoutSize[0];
       var layoutHeight = forceLayoutSize[1];
 
       var outsideBoundary = wordsBBox.x < 0 || wordsBBox.maxX > layoutWidth || wordsBBox.y < 0 || wordsBBox.maxY > layoutHeight;
-      return outsideBoundary;
+      var boundaryTooBig = wordsBBox.x > 0 || wordsBBox.maxX < layoutWidth || wordsBBox.y > 0 || wordsBBox.maxY < layoutHeight;
+
+      if(outsideBoundary) {
+        return 1;
+      } else if(boundaryTooBig) {
+        return -1;
+      } else {
+        return 0;
+      }
     }
 
     /*
@@ -192,49 +213,43 @@
       var xDiff = 0;
       var yDiff = 0;
 
-      if(wordsOutsideBoundary) {
-        passedMaximumSize = true;
-        if(wordsBBox.x < 0 || wordsBBox.maxX > layoutWidth){
-          if(wordsBBox.x < 0) {
-            xDiff += Math.abs(wordsBBox.x);
-            wordsTop = xDiff / layoutWidth * layoutHeight;
-          }
-
-          if(wordsBBox.maxX > layoutWidth) {
-            xDiff += wordsBBox.maxX - layoutWidth;
-          }
-
-          yDiff = xDiff / layoutWidth * layoutHeight;
-        } else if(wordsBBox.y < 0) {
-          if(wordsBBox.y < 0) {
-            yDiff += Math.abs(wordsBBox.y);
-            wordsLeft = yDiff / layoutHeight * layoutWidth;
-          }
-
-
-          if(wordsBBox.maxY > layoutHeight) {
-            yDiff += wordsBBox.maxY - layoutHeight;
-          }
-
-          xDiff = yDiff / layoutHeight * layoutWidth;
-        }
-
-        newWidth = layoutWidth + xDiff;
-        newHeight = layoutHeight + yDiff;
+      if(wordsBBox.x > 0) {
+        xDiff -= Math.abs(wordsBBox.x);
+      } else if(wordsBBox.x < 0) {
+        xDiff += Math.abs(wordsBBox.x);
       }
 
-      if(newWidth !== layoutWidth || newHeight !== layoutHeight) {
-        force.size([newWidth, newHeight]);
-        svg.attr("viewBox", "0 0 " + newWidth + " " + newHeight);
+      if(wordsBBox.maxX > layoutWidth) {
+        xDiff += wordsBBox.maxX - layoutWidth;
+      } else if(wordsBBox.maxX > layoutWidth) {
+        xDiff -= layoutWidth - wordsBBox.maxX;
       }
 
-      if(wordsTop > 0 || wordsLeft > 0) {
-        text.attr('x', function(d) {
-          return d.x + wordsLeft;
-        }).attr('y', function(d) {
-          return d.y + wordsTop;
-        });
+      if(wordsBBox.y > 0) {
+        yDiff -= Math.abs(wordsBBox.y);
+      } else if(wordsBBox.y < 0) {
+        yDiff += Math.abs(wordsBBox.y);
       }
+
+      if(wordsBBox.maxY > layoutHeight) {
+        yDiff += wordsBBox.maxY - layoutHeight;
+      } else if(wordsBBox.maxY > layoutHeight) {
+        yDiff -= layoutHeight - wordsBBox.maxY;
+      }
+
+      newWidth = layoutWidth + xDiff;
+      newHeight = layoutHeight + yDiff;
+      var ratio = xDiff / layoutWidth;
+      var xScale = (layoutWidth / newWidth) * 0.95;
+      var yScale = (layoutHeight / newHeight) * 0.95;
+
+      scale = xScale < yScale ? xScale : yScale;
+
+      group
+        .attr('width', newWidth)
+        .attr('height', newHeight)
+        .transition()
+        .attr('transform', 'scale(' + scale + ')');
 
     }
 
@@ -268,8 +283,8 @@
         return d.y;
       });
 
-      wordsOutsideBoundary = areWordsOutsideBoundary();
-      if(wordsOutsideBoundary) {
+      var boundaryCheck = boundaryTooBigOrTooSmall();
+      if(boundaryCheck !== 0) {
         resizeLayout();
       }
     });
@@ -331,6 +346,7 @@
     wordDefaults: {
       increasedBy: 0,
       increaseTo: 0,
+      scale: 1,
       text: "Lorum",
       color: "random", //Can either be a HEX string or "random" <- means random color will be generated
       fontSize: 30,
