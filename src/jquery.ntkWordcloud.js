@@ -20,15 +20,13 @@
       wordsBBox,
       passedMaximumSize;
 
-    var fitToSizeTimeout;
-
     var svg = d3.select($element[0]).append("svg").attr("preserveAspectRatio", "xMinYMin meet").attr("width", width).attr("height", height).attr("viewBox", "0 0 " + width + " " + height);
 
     var group = svg.append("g")
       .attr("width", width)
       .attr("height", height)
-      .attr("transform", "scale(" + scale + ")")
-      .attr("transform-origin", "50% 50%");
+      .attr("transform", "scale(" + scale + ")");
+      //.attr("transform-origin", "50% 50%");
 
     var text = group.selectAll('text');
     var color = d3.scale.category20();
@@ -183,24 +181,6 @@
       }
     }
 
-    /*
-
-    function fitToSize() {
-      var wordsBBox = getwordsBBox(text);
-      var layoutSize = force.size();
-
-      var layoutHeight = forceLayoutSize[1];
-      var layoutWidth = forceLayoutSize[2];
-    }
-    */
-
-    function fitToSize() {
-      var width = wordsBBox.width;
-      var height = wordsBBox.height;
-      force.size([width, height]);
-      svg.attr("viewBox", "0 0 " + width + " " + height);
-    }
-
     function resizeLayout() {
       var forceLayoutSize = force.size();
       var layoutWidth = forceLayoutSize[0];
@@ -245,11 +225,21 @@
 
       scale = xScale < yScale ? xScale : yScale;
 
+      var scaledWidth = layoutWidth * scale;
+      var scaledHeight = layoutHeight * scale;
+
+      var left = layoutWidth - scaledWidth;
+      var top = layoutHeight - scaledHeight;
+
+      var scaleTransform = 'scale(' + scale + ')';
+      var translateTransform = 'translate(' + left + ' ' + top + ')';
+      var transform = scaleTransform + ' ' + translateTransform;
+
       group
         .attr('width', newWidth)
         .attr('height', newHeight)
         .transition()
-        .attr('transform', 'scale(' + scale + ')');
+        .attr('transform', transform);
 
     }
 
