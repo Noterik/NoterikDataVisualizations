@@ -31,6 +31,8 @@
     var text = group.selectAll('text');
     var color = d3.scale.category20();
 
+    var overflowed = false;
+
     var force = d3.layout.force().nodes(words).gravity(options.gravity).charge(function(d) {
       return d.charge;
     }).size([width, height]);
@@ -275,7 +277,13 @@
 
       var boundaryCheck = boundaryTooBigOrTooSmall();
       if(boundaryCheck !== 0) {
-        resizeLayout();
+        if(boundaryCheck > 0) {
+          overflowed = true;
+        }
+
+        if(overflowed) {
+          resizeLayout();
+        }
       }
     });
   };
