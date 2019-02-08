@@ -16,22 +16,16 @@
 
     var scale = 1;
 
-    var wordsOutsideBoundary,
-      wordsBBox,
-      passedMaximumSize;
+    var wordsBBox;
 
     var svg = d3.select($element[0]).append("svg").attr("preserveAspectRatio", "xMinYMin meet").attr("width", width).attr("height", height).attr("viewBox", "0 0 " + width + " " + height);
 
     var group = svg.append("g")
       .attr("width", width)
       .attr("height", height)
-      .attr("transform", "scale(" + scale + ")");
-      //.attr("transform-origin", "50% 50%");
 
     var text = group.selectAll('text');
     var color = d3.scale.category20();
-
-    var overflowed = false;
 
     var force = d3.layout.force().nodes(words).gravity(options.gravity).charge(function(d) {
       return d.charge;
@@ -189,8 +183,6 @@
       var layoutHeight = forceLayoutSize[1];
       var newWidth = layoutWidth;
       var newHeight = layoutHeight;
-      var wordsTop = 0;
-      var wordsLeft = 0;
 
       var xDiff = 0;
       var yDiff = 0;
@@ -221,7 +213,6 @@
 
       newWidth = layoutWidth + xDiff;
       newHeight = layoutHeight + yDiff;
-      var ratio = xDiff / layoutWidth;
       var xScale = (layoutWidth / newWidth) * 0.95;
       var yScale = (layoutHeight / newHeight) * 0.95;
 
@@ -230,12 +221,12 @@
       var scaledWidth = layoutWidth * scale;
       var scaledHeight = layoutHeight * scale;
 
-      var left = layoutWidth - scaledWidth;
-      var top = layoutHeight - scaledHeight;
+      var left = (layoutWidth - scaledWidth) / 2;
+      var top = (layoutHeight - scaledHeight) / 2;
 
       var scaleTransform = 'scale(' + scale + ')';
       var translateTransform = 'translate(' + left + ' ' + top + ')';
-      var transform = scaleTransform + ' ' + translateTransform;
+      var transform = translateTransform + ' ' + scaleTransform;
 
       group
         .attr('width', newWidth)
@@ -275,16 +266,10 @@
         return d.y;
       });
 
-      var boundaryCheck = boundaryTooBigOrTooSmall();
-      if(boundaryCheck !== 0) {
-        if(boundaryCheck > 0) {
-          overflowed = true;
-        }
-
-        if(overflowed) {
-          resizeLayout();
-        }
+      if(boundaryTooBigOrTooSmall() > 0) {
+        resizeLayout();
       }
+
     });
   };
 
