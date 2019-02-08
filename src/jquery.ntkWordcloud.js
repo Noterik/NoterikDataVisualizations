@@ -22,7 +22,7 @@
 
     var group = svg.append("g")
       .attr("width", width)
-      .attr("height", height)
+      .attr("height", height);
 
     var text = group.selectAll('text');
     var color = d3.scale.category20();

@@ -1,6 +1,6 @@
 {
   "name": "noterik-data-visualizations",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Data Visualizations for QANDR",
   "main": "gruntfile.js",
   "directories": {
