@@ -71,9 +71,22 @@
       });
 
       if (existing) {
-        existing.increaseTo = existing.increaseTo ? existing.increaseTo + existing.wordIncreaseBy : existing.wordIncreaseBy;
+        existing.increaseTo = existing.increaseTo ? word.wordIncreaseBy ? existing.increaseTo + word.wordIncreaseBy : existing.increaseTo + existing.wordIncreaseBy : existing.wordIncreaseBy;
+        existing.increasedBy = word.increasedBy ? existing.increasedBy + word.increasedBy : existing.increasedBy;
       } else {
         words.push($.extend({}, this.options.wordDefaults, word, {added: performance.now()}));
+      }
+    }.bind(this);
+
+    this.removeWord = function(word) {
+      var index = words.findIndex(function(w) {
+        return w.text === word.text;
+      });
+      if (index > -1) {
+       words.splice(index, 1);
+        text.filter(function(d) {
+          return d.text === word.text;
+        }).remove();
       }
     }.bind(this);
 
@@ -243,6 +256,9 @@
           d.originalFontSize = d.fontSize;
         if (d.increasedBy < d.increaseTo) {
           d.increasedBy += 0.5;
+          d.fontSize = d.originalFontSize + d.increasedBy;
+        } else if (d.increasedBy > d.increaseTo) {
+          d.increasedBy += -0.5;
           d.fontSize = d.originalFontSize + d.increasedBy;
         }
         var bbox = this.getBBox();
